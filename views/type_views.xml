@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Fee Type Action and Views -->
+    <record id="action_institute_fee_type" model="ir.actions.act_window">
+        <field name="name">Fee Types</field>
+        <field name="res_model">institute.fee.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="view_institute_fee_type_tree" model="ir.ui.view">
+        <field name="name">institute.fee.type.tree</field>
+        <field name="model">institute.fee.type</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <menuitem id="menu_institute_fee_type" name="Fee Types" parent="menu_institute_accounting_config" action="action_institute_fee_type" sequence="10"/>
+
+    <!-- Expense Type Action and Views -->
+    <record id="action_institute_expense_type" model="ir.actions.act_window">
+        <field name="name">Expense Types</field>
+        <field name="res_model">institute.expense.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="view_institute_expense_type_tree" model="ir.ui.view">
+        <field name="name">institute.expense.type.tree</field>
+        <field name="model">institute.expense.type</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <menuitem id="menu_institute_expense_type" name="Expense Types" parent="menu_institute_accounting_config" action="action_institute_expense_type" sequence="20"/>
+</odoo>

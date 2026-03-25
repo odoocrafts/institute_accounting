@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_institute_accounting_transaction" model="ir.sequence">
+            <field name="name">Institute Accounting Transaction</field>
+            <field name="code">institute.accounting.transaction</field>
+            <field name="prefix">INS/ACC/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

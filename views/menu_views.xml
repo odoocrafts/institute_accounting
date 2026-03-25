@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Top Menu -->
+    <menuitem id="menu_institute_accounting_root" name="Books" sequence="50" web_icon="institute_accounting,static/description/icon.png"/>
+    
+    <!-- Submenus -->
+    <menuitem id="menu_institute_accounting_transactions" name="Transactions" parent="menu_institute_accounting_root" sequence="10"/>
+    <menuitem id="menu_institute_accounting_reports" name="Reporting" parent="menu_institute_accounting_root" sequence="20"/>
+    <menuitem id="menu_institute_accounting_config" name="Configuration" parent="menu_institute_accounting_root" sequence="30" groups="institute_accounting.group_institute_accounting_manager"/>
+
+    <!-- Branch Menu in Configuration -->
+    <record id="action_institute_accounting_branch" model="ir.actions.act_window">
+        <field name="name">Branches</field>
+        <field name="res_model">student.branch</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_institute_accounting_branch" name="Branches" parent="menu_institute_accounting_config" action="action_institute_accounting_branch" sequence="5"/>
+</odoo>

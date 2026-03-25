@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_institute_accounting_report_pivot" model="ir.ui.view">
+        <field name="name">institute.accounting.report.pivot</field>
+        <field name="model">institute.accounting.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Profit &amp; Loss" display_quantity="true" sample="1">
+                <field name="date" type="row"/>
+                <field name="branch_id" type="row"/>
+                <field name="net_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_institute_accounting_report_graph" model="ir.ui.view">
+        <field name="name">institute.accounting.report.graph</field>
+        <field name="model">institute.accounting.report</field>
+        <field name="arch" type="xml">
+            <graph string="Profit &amp; Loss" sample="1">
+                <field name="branch_id"/>
+                <field name="net_amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_institute_accounting_report_search" model="ir.ui.view">
+        <field name="name">institute.accounting.report.search</field>
+        <field name="model">institute.accounting.report</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="branch_id"/>
+                <field name="transaction_type"/>
+                <filter string="Income" name="income" domain="[('transaction_type', '=', 'income')]"/>
+                <filter string="Expense" name="expense" domain="[('transaction_type', '=', 'expense')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Branch" name="group_by_branch" context="{'group_by': 'branch_id'}"/>
+                    <filter string="Type" name="group_by_type" context="{'group_by': 'transaction_type'}"/>
+                    <filter string="Date" name="group_by_date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_institute_accounting_report" model="ir.actions.act_window">
+        <field name="name">P&amp;L Analysis</field>
+        <field name="res_model">institute.accounting.report</field>
+        <field name="view_mode">pivot,graph</field>
+        <field name="context">{'search_default_group_by_branch': 1}</field>
+    </record>
+
+    <menuitem id="menu_institute_action_report" name="P&amp;L Analysis" parent="menu_institute_accounting_reports" action="action_institute_accounting_report" sequence="10"/>
+</odoo>
