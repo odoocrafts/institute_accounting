@@ -4,9 +4,11 @@
         <field name="name">institute.accounting.report.pivot</field>
         <field name="model">institute.accounting.report</field>
         <field name="arch" type="xml">
-            <pivot string="Profit &amp; Loss" display_quantity="true" sample="1">
-                <field name="date" type="row"/>
+            <pivot string="Profit &amp; Loss" display_quantity="false" sample="1">
                 <field name="branch_id" type="row"/>
+                <field name="date" type="col" interval="month"/>
+                <field name="income_amount" type="measure"/>
+                <field name="expense_amount" type="measure"/>
                 <field name="net_amount" type="measure"/>
             </pivot>
         </field>

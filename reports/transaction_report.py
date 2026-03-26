@@ -13,6 +13,8 @@ class InstituteAccountingReport(models.Model):
         ('expense', 'Expense')
     ], string='Type', readonly=True)
     amount = fields.Float('Amount', readonly=True)
+    income_amount = fields.Float('Income', readonly=True)
+    expense_amount = fields.Float('Expense', readonly=True)
     net_amount = fields.Float('Net Amount (P&L)', readonly=True)
     fee_type_id = fields.Many2one('institute.fee.type', string='Fee Type', readonly=True)
     expense_type_id = fields.Many2one('institute.expense.type', string='Expense Type', readonly=True)
@@ -37,6 +39,14 @@ class InstituteAccountingReport(models.Model):
                 t.branch_id,
                 t.transaction_type,
                 t.amount,
+                CASE
+                    WHEN t.transaction_type = 'income' THEN t.amount
+                    ELSE 0.0
+                END as income_amount,
+                CASE
+                    WHEN t.transaction_type = 'expense' THEN t.amount
+                    ELSE 0.0
+                END as expense_amount,
                 CASE
                     WHEN t.transaction_type = 'income' THEN t.amount
                     ELSE -t.amount
