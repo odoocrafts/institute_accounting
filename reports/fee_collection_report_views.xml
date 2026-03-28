@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_fee_receipt" model="ir.actions.report">
+        <field name="name">Fee Receipt</field>
+        <field name="model">student.fee.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">institute_accounting.report_fee_receipt_template</field>
+        <field name="report_file">institute_accounting.report_fee_receipt_template</field>
+        <field name="binding_model_id" ref="student_management.model_student_fee_payment"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_fee_receipt_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="row mt32 mb32">
+                            <div class="col-6">
+                                <strong>Branch Billing Address:</strong><br/>
+                                <span t-esc="doc.student_id.branch.billing_address or 'No Billing Address Setup'"/><br/>
+                                <strong>GSTIN:</strong> <span t-esc="doc.student_id.branch.gstin or 'N/A'"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <h3>Fee Receipt: <span t-field="doc.name"/></h3>
+                                <strong>Date:</strong> <span t-field="doc.payment_date"/><br/>
+                            </div>
+                        </div>
+
+                        <div class="row mt32 mb32">
+                            <div class="col-6">
+                                <strong>Student:</strong> <span t-field="doc.student_id.name"/><br/>
+                                <strong>Course:</strong> <span t-field="doc.course_id.name"/><br/>
+                                <strong>Batch:</strong> <span t-field="doc.batch_id.name"/><br/>
+                                <strong>Semester:</strong> <span t-field="doc.semester_id.name"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Payment Method:</strong> <span t-field="doc.payment_method"/><br/>
+                                <strong>Amount Paid:</strong> <span t-field="doc.amount"/><br/>
+                                <strong>Reference:</strong> <span t-field="doc.reference"/><br/>
+                            </div>
+                        </div>
+
+                        <div t-if="doc.notes" class="mt32">
+                            <strong>Notes:</strong>
+                            <p t-field="doc.notes"/>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

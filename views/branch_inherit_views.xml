@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_student_branch_form_inherit_accounting" model="ir.ui.view">
+        <field name="name">student.branch.form.inherit.accounting</field>
+        <field name="model">student.branch</field>
+        <field name="inherit_id" ref="student_management.view_student_branch_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group/group[2]" position="inside">
+                <field name="gstin"/>
+            </xpath>
+            <xpath expr="//sheet/group" position="after">
+                <group string="Billing Details">
+                    <field name="billing_address"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_institute_semester_tree" model="ir.ui.view">
+        <field name="name">institute.semester.tree</field>
+        <field name="model">institute.semester</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="sequence"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_institute_semester" model="ir.actions.act_window">
+        <field name="name">Semesters</field>
+        <field name="res_model">institute.semester</field>
+        <field name="view_mode">tree</field>
+    </record>
+    
+    <menuitem id="menu_institute_semester"
+              name="Semesters"
+              parent="menu_institute_accounting_config"
+              action="action_institute_semester"
+              sequence="30"/>
+</odoo>

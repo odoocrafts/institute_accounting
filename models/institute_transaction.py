@@ -65,3 +65,7 @@ class InstituteAccountingTransaction(models.Model):
     def action_paid(self):
         for rec in self:
             rec.state = 'paid'
+
+    def action_print_voucher(self):
+        for rec in self:
+            return self.env.ref('institute_accounting.action_report_transaction_voucher').report_action(rec)

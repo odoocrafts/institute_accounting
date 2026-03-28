@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_transaction_voucher" model="ir.actions.report">
+        <field name="name">Transaction Voucher</field>
+        <field name="model">institute.accounting.transaction</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">institute_accounting.report_transaction_voucher_template</field>
+        <field name="report_file">institute_accounting.report_transaction_voucher_template</field>
+        <field name="binding_model_id" ref="institute_accounting.model_institute_accounting_transaction"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_transaction_voucher_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="row mt32 mb32">
+                            <div class="col-6">
+                                <strong>Branch:</strong> <span t-field="doc.branch_id.name"/><br/>
+                                <strong>Address:</strong> <span t-esc="doc.branch_id.billing_address or 'No Billing Address Setup'"/><br/>
+                                <strong>GSTIN:</strong> <span t-esc="doc.branch_id.gstin or 'N/A'"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <h3>Payment Voucher: <span t-field="doc.name"/></h3>
+                                <strong>Date:</strong> <span t-field="doc.date"/><br/>
+                                <strong>Status:</strong> <span t-field="doc.state"/>
+                            </div>
+                        </div>
+
+                        <div class="row mt32 mb32">
+                            <div class="col-6">
+                                <strong>Type:</strong> <span t-field="doc.transaction_type"/><br/>
+                                <strong>Category:</strong> 
+                                <span t-if="doc.transaction_type == 'income'" t-field="doc.fee_type_id.name"/>
+                                <span t-if="doc.transaction_type == 'expense'" t-field="doc.expense_type_id.name"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <strong>Payment Method:</strong> <span t-field="doc.payment_method"/><br/>
+                                <strong>Amount:</strong> <span t-field="doc.amount"/><br/>
+                                <strong>Reference:</strong> <span t-esc="doc.transaction_ref or 'N/A'"/><br/>
+                            </div>
+                        </div>
+
+                        <div t-if="doc.description" class="mt32">
+                            <strong>Description:</strong>
+                            <p t-field="doc.description"/>
+                        </div>
+                        
+                        <div class="row mt64 pt64">
+                            <div class="col-6 text-center">
+                                _______________________<br/>
+                                Prepared By
+                            </div>
+                            <div class="col-6 text-center">
+                                _______________________<br/>
+                                Authorized Signatory
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

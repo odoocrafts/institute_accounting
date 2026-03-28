@@ -32,6 +32,7 @@
         <field name="arch" type="xml">
             <form>
                 <header>
+                    <button name="action_print_voucher" type="object" string="Print Voucher" class="oe_highlight"/>
                     <button name="action_submit" type="object" string="Submit" invisible="state != 'draft'" class="oe_highlight"/>
                     <button name="action_approve" type="object" string="Approve" invisible="state != 'submitted'" groups="institute_accounting.group_institute_accounting_manager" class="oe_highlight"/>
                     <button name="action_paid" type="object" string="Mark as Paid" invisible="state != 'approved'" groups="institute_accounting.group_institute_accounting_manager" class="oe_highlight"/>
