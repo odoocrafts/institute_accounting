@@ -15,4 +15,22 @@
         <field name="view_mode">tree,form</field>
     </record>
     <menuitem id="menu_institute_accounting_branch" name="Branches" parent="menu_institute_accounting_config" action="action_institute_accounting_branch" sequence="5"/>
+
+    <!-- Course Menu -->
+    <record id="action_institute_accounting_course" model="ir.actions.act_window">
+        <field name="name">Courses</field>
+        <field name="res_model">product.product</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('type', '=', 'service')]</field>
+        <field name="context">{'default_type': 'service'}</field>
+    </record>
+    <menuitem id="menu_institute_accounting_course" name="Courses" parent="menu_institute_accounting_config" action="action_institute_accounting_course" sequence="6"/>
+
+    <!-- Batch Menu -->
+    <record id="action_institute_accounting_batch" model="ir.actions.act_window">
+        <field name="name">Batches</field>
+        <field name="res_model">student.batch</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_institute_accounting_batch" name="Batches" parent="menu_institute_accounting_config" action="action_institute_accounting_batch" sequence="7"/>
 </odoo>
