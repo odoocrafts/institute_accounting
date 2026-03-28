@@ -18,6 +18,22 @@ class InstituteAccountingTransaction(models.Model):
     fee_type_id = fields.Many2one('institute.fee.type', string='Fee Type')
     expense_type_id = fields.Many2one('institute.expense.type', string='Expense Type')
     
+    # Fee Collection Fields
+    course_id = fields.Many2one('product.product', string='Course')
+    batch_id = fields.Many2one('student.batch', string='Batch', domain="[('course_id', '=', course_id)]")
+    student_id = fields.Many2one('student.student', string='Student', domain="['|', ('batch_id', '=', batch_id), ('course_id', '=', course_id)]")
+    semester_id = fields.Many2one('institute.semester', string='Semester')
+    student_due = fields.Float(string='Student Due', related='student_id.computed_due')
+    
+    @api.onchange('course_id')
+    def _onchange_course(self):
+        self.batch_id = False
+        self.student_id = False
+
+    @api.onchange('batch_id')
+    def _onchange_batch(self):
+        self.student_id = False
+    
     payment_method = fields.Selection([
         ('cash', 'Cash'),
         ('bank', 'Bank Transfer'),
@@ -65,7 +81,30 @@ class InstituteAccountingTransaction(models.Model):
     def action_paid(self):
         for rec in self:
             rec.state = 'paid'
+            if rec.transaction_type == 'income' and rec.student_id:
+                # Create a student fee payment
+                self.env['student.fee.payment'].create({
+                    'name': rec.name,
+                    'student_id': rec.student_id.id,
+                    'payment_date': rec.date,
+                    'amount': rec.amount,
+                    'payment_method': rec.payment_method,
+                    'reference': rec.transaction_ref,
+                    'course_id': rec.course_id.id if rec.course_id else False,
+                    'batch_id': rec.batch_id.id if rec.batch_id else False,
+                    'semester_id': rec.semester_id.id if rec.semester_id else False,
+                })
 
     def action_print_voucher(self):
         for rec in self:
             return self.env.ref('institute_accounting.action_report_transaction_voucher').report_action(rec)
+
+    def action_print_receipt(self):
+        for rec in self:
+            # We can print the same fee receipt template using this transaction record since it has all fields.
+            # But the report is bound to student.fee.payment!
+            # Let's find the created student.fee.payment record and print that, or we can just bind a new report to transaction later.
+            payment = self.env['student.fee.payment'].search([('name', '=', rec.name)], limit=1)
+            if payment:
+                return self.env.ref('institute_accounting.action_report_fee_receipt').report_action(payment)
+            return True

@@ -32,7 +32,8 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_print_voucher" type="object" string="Print Voucher" class="oe_highlight"/>
+                    <button name="action_print_voucher" type="object" string="Print Voucher" invisible="transaction_type == 'income'" class="oe_highlight"/>
+                    <button name="action_print_receipt" type="object" string="Print Receipt" invisible="transaction_type != 'income' or state != 'paid'" class="oe_highlight"/>
                     <button name="action_submit" type="object" string="Submit" invisible="state != 'draft'" class="oe_highlight"/>
                     <button name="action_approve" type="object" string="Approve" invisible="state != 'submitted'" groups="institute_accounting.group_institute_accounting_manager" class="oe_highlight"/>
                     <button name="action_paid" type="object" string="Mark as Paid" invisible="state != 'approved'" groups="institute_accounting.group_institute_accounting_manager" class="oe_highlight"/>
@@ -54,6 +55,14 @@
                         <group>
                             <field name="fee_type_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" required="transaction_type == 'income'"/>
                             <field name="expense_type_id" invisible="transaction_type != 'expense'" readonly="state != 'draft'" required="transaction_type == 'expense'"/>
+                            
+                            <!-- Fee Collection Fields -->
+                            <field name="course_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="batch_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="student_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="semester_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="student_due" invisible="transaction_type != 'income' or not student_id" readonly="1"/>
+
                             <field name="payment_method" readonly="state != 'draft'"/>
                             <field name="bank_account_id" invisible="payment_method == 'cash'" readonly="state != 'draft'"/>
                             <field name="transaction_ref" invisible="payment_method == 'cash'" readonly="state != 'draft'"/>
