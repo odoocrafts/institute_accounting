@@ -145,10 +145,10 @@
                                                 <strong><span t-esc="cgst + sgst" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/></strong>
                                             </td>
                                         </tr>
-                                        <tr style="font-size: 15px;">
-                                            <td class="border-dark"><strong>Grand Total</strong></td>
-                                            <td class="border-dark text-right">
-                                                <strong style="color: #0d6efd;"><span t-esc="amount_total" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/></strong>
+                                        <tr style="background-color: #212529; color: #ffffff; font-size: 15px;">
+                                            <td class="border-dark text-white" style="color: #ffffff !important;"><strong>Grand Total</strong></td>
+                                            <td class="border-dark text-right text-white" style="color: #ffffff !important;">
+                                                <strong><span t-esc="amount_total" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/></strong>
                                             </td>
                                         </tr>
                                     </table>
