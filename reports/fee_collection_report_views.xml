@@ -15,35 +15,159 @@
             <t t-foreach="docs" t-as="doc">
                 <t t-call="web.external_layout">
                     <div class="page">
-                        <div class="row mt32 mb32">
-                            <div class="col-6">
-                                <strong>Branch Billing Address:</strong><br/>
-                                <span t-esc="doc.student_id.branch.billing_address or 'No Billing Address Setup'"/><br/>
-                                <strong>GSTIN:</strong> <span t-esc="doc.student_id.branch.gstin or 'N/A'"/>
-                            </div>
-                            <div class="col-6 text-right">
-                                <h3>Fee Receipt: <span t-field="doc.name"/></h3>
-                                <strong>Date:</strong> <span t-field="doc.payment_date"/><br/>
-                            </div>
-                        </div>
+                        <style>
+                            .invoice-container { margin-top: 20px; font-family: 'Helvetica', 'Arial', sans-serif; }
+                            .company-details { font-size: 13px; line-height: 1.5; }
+                            .invoice-header { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #dee2e6; }
+                            .table-invoice th { background-color: #f1f3f5; font-weight: bold; font-size: 13px; padding: 10px; border-bottom: 2px solid #dee2e6; text-transform: uppercase; border: 1px solid #dee2e6; color: #495057; }
+                            .table-invoice td { padding: 10px; font-size: 13px; vertical-align: middle; border: 1px solid #dee2e6; }
+                            .summary-table { width: 100%; font-size: 13px; }
+                            .summary-table th { background-color: #f8f9fa; padding: 8px; text-transform: uppercase; border: 1px solid #dee2e6; }
+                            .summary-table td { padding: 8px; border: 1px solid #dee2e6; }
+                            .amount-in-words { font-size: 13px; margin-top: 15px; font-weight: bold; }
+                        </style>
 
-                        <div class="row mt32 mb32">
-                            <div class="col-6">
-                                <strong>Student:</strong> <span t-field="doc.student_id.name"/><br/>
-                                <strong>Course:</strong> <span t-field="doc.course_id.name"/><br/>
-                                <strong>Batch:</strong> <span t-field="doc.batch_id.name"/><br/>
-                                <strong>Semester:</strong> <span t-field="doc.semester_id.name"/>
+                        <div class="invoice-container">
+                            <!-- Invoice Header Info -->
+                            <div class="row invoice-header">
+                                <div class="col-7 company-details">
+                                    <h5 class="mb-2" style="color: #212529;"><strong>Billed To / Student Details:</strong></h5>
+                                    <span style="font-size: 15px;"><strong><span t-field="doc.student_id.name"/></strong></span><br/>
+                                    <strong>Course:</strong> <span t-field="doc.course_id.name"/><br/>
+                                    <strong>Batch:</strong> <span t-field="doc.batch_id.name"/><br/>
+                                    <strong>Semester:</strong> <span t-field="doc.semester_id.name"/><br/>
+                                </div>
+                                <div class="col-5 company-details text-right">
+                                    <h3 class="mb-2" style="margin-top: 0; color: #0d6efd; letter-spacing: 1px;"><strong>TAX INVOICE</strong></h3>
+                                    <strong>Receipt No:</strong> <span t-field="doc.name"/><br/>
+                                    <strong>Date:</strong> <span t-field="doc.payment_date"/><br/>
+                                    <strong>Payment Method:</strong> <span t-field="doc.payment_method"/><br/>
+                                    <span t-if="doc.reference"><strong>Ref:</strong> <span t-field="doc.reference"/></span>
+                                </div>
                             </div>
-                            <div class="col-6">
-                                <strong>Payment Method:</strong> <span t-field="doc.payment_method"/><br/>
-                                <strong>Amount Paid:</strong> <span t-field="doc.amount"/><br/>
-                                <strong>Reference:</strong> <span t-field="doc.reference"/><br/>
+                            
+                            <div class="row mb-4">
+                                <div class="col-12 company-details">
+                                    <strong>Branch Billing Address:</strong><br/>
+                                    <span t-esc="doc.student_id.branch.billing_address or 'No Billing Address Setup'"/><br/>
+                                    <strong>GSTIN:</strong> <span t-esc="doc.student_id.branch.gstin or 'N/A'"/>
+                                </div>
                             </div>
-                        </div>
 
-                        <div t-if="doc.notes" class="mt32">
-                            <strong>Notes:</strong>
-                            <p t-field="doc.notes"/>
+                            <!-- Calculations for fixed 18% GST -->
+                            <t t-set="amount_total" t-value="doc.amount"/>
+                            <t t-set="taxable_value" t-value="round(amount_total / 1.18, 2)"/>
+                            <t t-set="cgst" t-value="round(taxable_value * 0.09, 2)"/>
+                            <t t-set="sgst" t-value="round(taxable_value * 0.09, 2)"/>
+                            
+                            <!-- Adjust rounding differences to be completely exact -->
+                            <t t-set="taxable_value" t-value="round(amount_total - cgst - sgst, 2)"/>
+                            
+                            <!-- Invoice Table -->
+                            <table class="table table-invoice mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 5%">Sl No.</th>
+                                        <th style="width: 35%">Particulars</th>
+                                        <th class="text-center" style="width: 15%">HSN/SAC</th>
+                                        <th class="text-right" style="width: 12%">Qty</th>
+                                        <th class="text-right" style="width: 15%">Rate</th>
+                                        <th class="text-right" style="width: 18%">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-center">1</td>
+                                        <td>
+                                            <strong>ADMISSION / COURSE FEES</strong><br/>
+                                            <span class="text-muted" style="font-size: 11px;">
+                                                <span t-field="doc.course_id.name"/> 
+                                                <t t-if="doc.semester_id"> - <span t-field="doc.semester_id.name"/></t>
+                                            </span>
+                                        </td>
+                                        <td class="text-center">9992</td>
+                                        <td class="text-right">1.00</td>
+                                        <td class="text-right">
+                                            <span t-esc="taxable_value" t-options='{"widget": "float", "precision": 2}'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <strong><span t-esc="taxable_value" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/></strong>
+                                        </td>
+                                    </tr>
+                                    <!-- Filler row for aesthetics -->
+                                    <tr style="height: 100px;">
+                                        <td class="border-bottom-0 border-top-0"></td>
+                                        <td class="border-bottom-0 border-top-0"></td>
+                                        <td class="border-bottom-0 border-top-0"></td>
+                                        <td class="border-bottom-0 border-top-0"></td>
+                                        <td class="border-bottom-0 border-top-0"></td>
+                                        <td class="border-bottom-0 border-top-0"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- GST Breakdown Table in proper layout -->
+                            <div class="row">
+                                <div class="col-7 pr-0" style="padding-top: 15px;">
+                                    <div class="amount-in-words p-2" style="border: 1px solid #dee2e6; border-radius: 4px; background-color: #f8f9fa;">
+                                        <span class="text-muted">Amount in words:</span><br/>
+                                        <strong>INR <span class="text-capitalize" t-esc="env.company.currency_id.amount_to_text(amount_total).replace('Rupees', '').replace('Rupee', '')"/> Only</strong>
+                                    </div>
+                                    <div t-if="doc.notes" class="mt-3" style="font-size: 12px; border: 1px solid #dee2e6; padding: 10px; border-radius: 4px;">
+                                        <strong>Notes / Terms:</strong>
+                                        <p t-field="doc.notes" class="text-muted mb-0"/>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-5 pl-0">
+                                    <table class="table summary-table" style="margin-top: -1px;">
+                                        <tr>
+                                            <td style="border-top: none;"><strong>Total Taxable Value</strong></td>
+                                            <td class="text-right" style="border-top: none;">
+                                                <span t-esc="taxable_value" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>CGST (9%)</strong></td>
+                                            <td class="text-right">
+                                                <span t-esc="cgst" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>SGST (9%)</strong></td>
+                                            <td class="text-right">
+                                                <span t-esc="sgst" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f1f3f5;">
+                                            <td class="border-dark"><strong>Total Tax Amount</strong></td>
+                                            <td class="border-dark text-right">
+                                                <strong><span t-esc="cgst + sgst" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/></strong>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #e9ecef; font-size: 15px;">
+                                            <td class="border-dark" style="color: #212529;"><strong>Grand Total</strong></td>
+                                            <td class="border-dark text-right">
+                                                <strong style="color: #0d6efd;"><span t-esc="amount_total" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/></strong>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Signature Section -->
+                            <div class="row mt-5 text-center" style="font-size: 12px;">
+                                <div class="col-4 offset-8" style="margin-top: 40px; padding-top: 10px; border-top: 1px solid #adb5bd;">
+                                    <strong style="color: #495057;">Authorised Signatory</strong><br/>
+                                    <span class="text-muted" style="font-size: 10px;">For <span t-esc="doc.student_id.branch.billing_address.split(',')[0] if doc.student_id.branch.billing_address else 'Institute'"/></span>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3 text-center">
+                                <div class="col-12">
+                                    <span class="text-muted" style="font-size: 10px;"><em>This is a Computer Generated Tax Invoice/Receipt</em></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </t>
