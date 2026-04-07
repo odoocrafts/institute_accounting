@@ -48,7 +48,7 @@
                     <group>
                         <group>
                             <field name="transaction_type" readonly="state != 'draft'"/>
-                            <field name="branch_id" readonly="state != 'draft'"/>
+                            <field name="branch_id" readonly="1" force_save="1"/>
                             <field name="date" readonly="state != 'draft'"/>
                             <field name="amount" readonly="state != 'draft'"/>
                         </group>

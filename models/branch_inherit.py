@@ -5,3 +5,4 @@ class BranchInherit(models.Model):
 
     billing_address = fields.Text(string='Billing Address')
     gstin = fields.Char(string='GSTIN')
+    accountant_id = fields.Many2one('res.users', string='Branch Accountant')

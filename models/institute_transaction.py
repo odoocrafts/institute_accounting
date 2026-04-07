@@ -6,8 +6,15 @@ class InstituteAccountingTransaction(models.Model):
     _description = 'Institute Accounting Transaction'
     _order = 'date desc, id desc'
 
+    @api.model
+    def _default_branch_from_accountant(self):
+        branch = self.env['student.branch'].search([('accountant_id', '=', self.env.user.id)], limit=1)
+        if branch:
+            return branch
+        return self.env.user.branch_ids[:1] if hasattr(self.env.user, 'branch_ids') and self.env.user.branch_ids else False
+
     name = fields.Char(string='Reference', required=True, copy=False, readonly=True, default=lambda self: _('New'))
-    branch_id = fields.Many2one('student.branch', string='Branch', required=True, default=lambda self: self.env.user.branch_ids[:1] if self.env.user.branch_ids else False)
+    branch_id = fields.Many2one('student.branch', string='Branch', required=True, default=_default_branch_from_accountant)
     transaction_type = fields.Selection([
         ('income', 'Income'),
         ('expense', 'Expense')

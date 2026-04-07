@@ -12,6 +12,9 @@
                 <group string="Billing Details">
                     <field name="billing_address"/>
                 </group>
+                <group string="Branch Settings">
+                    <field name="accountant_id"/>
+                </group>
             </xpath>
         </field>
     </record>
