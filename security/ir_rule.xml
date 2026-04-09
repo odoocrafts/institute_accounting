@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="1">
+    <data>
         <!-- Branch Accountant: Own branch transactions only -->
         <record id="rule_institute_accounting_transaction_branch" model="ir.rule">
             <field name="name">Branch Accountant Transactions</field>
