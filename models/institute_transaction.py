@@ -101,6 +101,7 @@ class InstituteAccountingTransaction(models.Model):
                     'amount': rec.amount,
                     'payment_method': rec.payment_method,
                     'reference': rec.transaction_ref,
+                    'branch_id': rec.branch_id.id if rec.branch_id else False,
                     'course_id': rec.course_id.id if rec.course_id else False,
                     'batch_id': rec.batch_id.id if rec.batch_id else False,
                     'semester_id': rec.semester_id.id if rec.semester_id else False,
