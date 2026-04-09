@@ -13,10 +13,25 @@
     <template id="report_fee_receipt_template">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
-                <t t-call="web.external_layout">
-                    <div class="page">
+                <t t-call="web.basic_layout">
+                    <!-- Custom Header -->
+                    <div class="header">
+                        <div class="row pt-4 text-dark" style="border-bottom: 1px solid #dee2e6; padding-bottom: 10px; margin-bottom: 20px;">
+                            <div class="col-4 text-left">
+                                <img t-if="env.company.logo" t-att-src="image_data_uri(env.company.logo)" style="max-height: 80px;" alt="Logo"/>
+                            </div>
+                            <div class="col-8 text-right" style="font-size: 13px;">
+                                <strong style="font-size: 18px;"><span t-field="env.company.name"/></strong><br/>
+                                <span t-esc="env.company.street"/><span t-if="env.company.street2">, <span t-esc="env.company.street2"/></span><br/>
+                                <span t-esc="env.company.city"/><span t-if="env.company.zip"> <span t-esc="env.company.zip"/></span><br/>
+                                <span t-esc="env.company.state_id.name"/><span t-if="env.company.country_id">, <span t-esc="env.company.country_id.name"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page text-dark">
                         <style>
-                            .invoice-container { margin-top: 20px; font-family: 'Helvetica', 'Arial', sans-serif; }
+                            .invoice-container { font-family: 'Helvetica', 'Arial', sans-serif; }
                             .company-details { font-size: 13px; line-height: 1.5; }
                             .invoice-header { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #dee2e6; }
                             .table-invoice th { background-color: #f1f3f5; font-weight: bold; font-size: 13px; padding: 10px; border-bottom: 2px solid #dee2e6; text-transform: uppercase; border: 1px solid #dee2e6; color: #495057; }
@@ -27,21 +42,21 @@
                             .amount-in-words { font-size: 13px; margin-top: 15px; font-weight: bold; }
                         </style>
 
-                        <div class="invoice-container">
+                        <div class="invoice-container mt-4">
                             <!-- Invoice Header Info -->
                             <div class="row invoice-header">
                                 <div class="col-7 company-details">
-                                    <h5 class="mb-2" style="color: #212529;"><strong>Billed To / Student Details:</strong></h5>
+                                    <h5 class="mb-2 text-dark"><strong>Billed To / Student Details:</strong></h5>
                                     <span style="font-size: 15px;"><strong><span t-field="doc.student_id.name"/></strong></span><br/>
                                     <strong>Course:</strong> <span t-field="doc.course_id.name"/><br/>
-                                    <strong>Batch:</strong> <span t-field="doc.batch_id.name"/><br/>
-                                    <strong>Semester:</strong> <span t-field="doc.semester_id.name"/><br/>
+                                    <strong>Batch:</strong> <span t-if="doc.batch_id" t-field="doc.batch_id.name"/><br/>
+                                    <strong>Semester:</strong> <span t-if="doc.semester_id" t-field="doc.semester_id.name"/><br/>
                                 </div>
                                 <div class="col-5 company-details text-right">
                                     <h3 class="mb-2" style="margin-top: 0; color: #0d6efd; letter-spacing: 1px;"><strong>TAX INVOICE</strong></h3>
                                     <strong>Receipt No:</strong> <span t-field="doc.name"/><br/>
                                     <strong>Date:</strong> <span t-field="doc.payment_date"/><br/>
-                                    <strong>Payment Method:</strong> <span t-field="doc.payment_method"/><br/>
+                                    <strong>Payment Method:</strong> <span class="text-capitalize" t-field="doc.payment_method"/><br/>
                                     <span t-if="doc.reference"><strong>Ref:</strong> <span t-field="doc.reference"/></span>
                                 </div>
                             </div>
@@ -49,8 +64,10 @@
                             <div class="row mb-4">
                                 <div class="col-12 company-details">
                                     <strong>Branch Billing Address:</strong><br/>
-                                    <span t-esc="doc.student_id.branch.billing_address or 'No Billing Address Setup'"/><br/>
-                                    <strong>GSTIN:</strong> <span t-esc="doc.student_id.branch.gstin or 'N/A'"/>
+                                    <strong t-esc="doc.branch_id.name or ''"/> 
+                                    <span t-if="doc.branch_id.billing_address"> - <span t-esc="doc.branch_id.billing_address"/></span>
+                                    <span t-if="not doc.branch_id.name and not doc.branch_id.billing_address">No Billing Address Setup</span><br/>
+                                    <strong>GSTIN:</strong> <span t-esc="doc.branch_id.gstin or 'N/A'"/>
                                 </div>
                             </div>
 
@@ -60,7 +77,7 @@
                             <t t-set="cgst" t-value="round(taxable_value * 0.09, 2)"/>
                             <t t-set="sgst" t-value="round(taxable_value * 0.09, 2)"/>
                             
-                            <!-- Adjust rounding differences to be completely exact -->
+                            <!-- Adjust rounding differences -->
                             <t t-set="taxable_value" t-value="round(amount_total - cgst - sgst, 2)"/>
                             
                             <!-- Invoice Table -->
@@ -81,7 +98,7 @@
                                         <td>
                                             <strong>ADMISSION / COURSE FEES</strong><br/>
                                             <span class="text-muted" style="font-size: 11px;">
-                                                <span t-field="doc.course_id.name"/> 
+                                                <span t-if="doc.course_id" t-field="doc.course_id.name"/> 
                                                 <t t-if="doc.semester_id"> - <span t-field="doc.semester_id.name"/></t>
                                             </span>
                                         </td>
@@ -94,7 +111,7 @@
                                             <strong><span t-esc="taxable_value" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/></strong>
                                         </td>
                                     </tr>
-                                    <!-- Filler row for aesthetics -->
+                                    <!-- Filler row -->
                                     <tr style="height: 100px;">
                                         <td class="border-bottom-0 border-top-0"></td>
                                         <td class="border-bottom-0 border-top-0"></td>
@@ -156,38 +173,47 @@
                             </div>
                             
                             <!-- Signature Section -->
-                            <div class="row mt-5 text-center" style="font-size: 12px;">
+                            <div class="row mt-5 text-center" style="font-size: 12px; page-break-inside: avoid;">
                                 <div class="col-4 offset-8" style="margin-top: 10px;">
-                                    <div t-if="doc.student_id.branch.accountant_signature" style="height: 60px; margin-bottom: 5px;">
-                                        <img t-att-src="image_data_uri(doc.student_id.branch.accountant_signature)" style="max-height: 60px; max-width: 128px;"/>
+                                    <div t-if="doc.branch_id.accountant_signature" style="height: 60px; margin-bottom: 5px;">
+                                        <img t-att-src="image_data_uri(doc.branch_id.accountant_signature)" style="max-height: 60px; max-width: 128px;"/>
                                     </div>
                                     <div t-else="" style="height: 60px; margin-bottom: 5px;">
                                         <br/><br/>
                                     </div>
                                     <div style="border-top: 1px solid #adb5bd; padding-top: 5px;">
-                                        <strong style="color: #495057;" t-esc="doc.student_id.branch.accountant_id.name or 'Authorised Signatory'"></strong><br/>
-                                        <span class="text-muted" style="font-size: 10px;">For <span t-esc="doc.student_id.branch.billing_address.split(',')[0] if doc.student_id.branch.billing_address else 'Institute'"/></span>
+                                        <strong style="color: #495057;" t-esc="doc.branch_id.accountant_id.name or 'Authorised Signatory'"></strong><br/>
+                                        <span class="text-muted" style="font-size: 10px;">For <span t-esc="doc.branch_id.name or 'Institute'"/></span>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div class="row mt-4 mb-2 text-center" style="border-top: 1px solid #dee2e6; padding-top: 10px; font-size: 11px;">
+                            <div class="mt-4" style="height: 20px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Footer -->
+                    <div class="footer o_standard_footer">
+                        <div class="text-center" style="border-top: 1px solid #adb5bd; padding-top: 10px; font-size: 12px; color: #495057;">
+                            <div class="row mb-1">
                                 <div class="col-12">
-                                    <span t-if="doc.student_id.branch.phone">
-                                        <strong>Phone:</strong> <span t-esc="doc.student_id.branch.phone"/> 
+                                    <span t-if="doc.branch_id.phone">
+                                        <span t-esc="doc.branch_id.phone"/> 
                                     </span>
-                                    <span t-if="doc.student_id.branch.phone and doc.student_id.branch.email">
+                                    <span t-if="doc.branch_id.phone and doc.branch_id.email">
                                         | 
                                     </span>
-                                    <span t-if="doc.student_id.branch.email">
-                                        <strong>Email:</strong> <span t-esc="doc.student_id.branch.email"/>
+                                    <span t-if="doc.branch_id.email">
+                                        <span t-esc="doc.branch_id.email"/>
                                     </span>
                                 </div>
                             </div>
-
-                            <div class="row text-center">
+                            <div class="row">
                                 <div class="col-12">
-                                    <span class="text-muted" style="font-size: 10px;"><em>This is a Computer Generated Tax Invoice/Receipt</em></span>
+                                    <span class="text-muted" style="font-size: 10px;">
+                                        <em>This is a Computer Generated Tax Invoice/Receipt</em><br/>
+                                        Page <span class="page"/> / <span class="topage"/>
+                                    </span>
                                 </div>
                             </div>
                         </div>
