@@ -49,12 +49,38 @@
                         
                         <div class="row mt64 pt64">
                             <div class="col-6 text-center">
-                                _______________________<br/>
-                                Prepared By
+                                <div style="height: 60px; margin-bottom: 5px;">
+                                    <br/><br/>
+                                </div>
+                                <div style="border-top: 1px solid #adb5bd; padding-top: 5px; width: 60%; margin: 0 auto;">
+                                    <strong>Prepared By</strong>
+                                </div>
                             </div>
                             <div class="col-6 text-center">
-                                _______________________<br/>
-                                Authorized Signatory
+                                <div t-if="doc.branch_id.accountant_signature" style="height: 60px; margin-bottom: 5px;">
+                                    <img t-att-src="image_data_uri(doc.branch_id.accountant_signature)" style="max-height: 60px; max-width: 128px;"/>
+                                </div>
+                                <div t-else="" style="height: 60px; margin-bottom: 5px;">
+                                    <br/><br/>
+                                </div>
+                                <div style="border-top: 1px solid #adb5bd; padding-top: 5px; width: 60%; margin: 0 auto;">
+                                    <strong t-esc="doc.branch_id.accountant_id.name or 'Authorized Signatory'"></strong><br/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Custom Footer content -->
+                        <div class="row mt-4 mb-2 text-center" style="border-top: 1px solid #dee2e6; padding-top: 10px; font-size: 11px;">
+                            <div class="col-12">
+                                <span t-if="doc.branch_id.phone">
+                                    <strong>Phone:</strong> <span t-esc="doc.branch_id.phone"/> 
+                                </span>
+                                <span t-if="doc.branch_id.phone and doc.branch_id.email">
+                                    | 
+                                </span>
+                                <span t-if="doc.branch_id.email">
+                                    <strong>Email:</strong> <span t-esc="doc.branch_id.email"/>
+                                </span>
                             </div>
                         </div>
                     </div>

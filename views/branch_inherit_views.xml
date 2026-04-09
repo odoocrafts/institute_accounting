@@ -11,9 +11,12 @@
             <xpath expr="//sheet/group" position="after">
                 <group string="Billing Details">
                     <field name="billing_address"/>
+                    <field name="email"/>
+                    <field name="phone"/>
                 </group>
                 <group string="Branch Settings">
                     <field name="accountant_id"/>
+                    <field name="accountant_signature" widget="image" class="oe_avatar" />
                 </group>
             </xpath>
         </field>
