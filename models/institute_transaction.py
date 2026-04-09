@@ -69,6 +69,8 @@ class InstituteAccountingTransaction(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            if not vals.get('branch_id'):
+                vals['branch_id'] = self._default_branch_from_accountant()
             if vals.get('name', _('New')) == _('New'):
                 vals['name'] = self.env['ir.sequence'].next_by_code('institute.accounting.transaction') or _('New')
         return super(InstituteAccountingTransaction, self).create(vals_list)
