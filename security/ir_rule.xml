@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- Force noupdate=False for existing rules so they can be overwritten -->
+        <function name="write" model="ir.model.data">
+            <function name="search" model="ir.model.data">
+                <value eval="[('module', '=', 'institute_accounting'), ('name', 'in', ['rule_institute_accounting_transaction_branch', 'rule_institute_accounting_report_branch'])]"/>
+            </function>
+            <value eval="{'noupdate': False}"/>
+        </function>
+
         <!-- Branch Accountant: Own branch transactions only -->
         <record id="rule_institute_accounting_transaction_branch" model="ir.rule">
             <field name="name">Branch Accountant Transactions</field>
