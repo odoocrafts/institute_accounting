@@ -176,17 +176,17 @@
                             <div class="row mt-5 align-items-end" style="font-size: 12px; page-break-inside: avoid;">
                                 <div class="col-4 text-left">
                                     <div t-if="doc.branch_id.non_refundable_seal" style="margin-bottom: 5px;">
-                                        <img t-att-src="image_data_uri(doc.branch_id.non_refundable_seal)" style="max-height: 100px; max-width: 250px; padding-left: 5px;"/>
+                                        <img t-att-src="image_data_uri(doc.branch_id.non_refundable_seal)" style="width: 210px; max-height: 120px; object-fit: contain; padding-left: 5px;"/>
                                     </div>
                                 </div>
                                 <div class="col-4 text-center">
                                     <div t-if="doc.branch_id.round_seal" style="margin-bottom: 5px;">
-                                        <img t-att-src="image_data_uri(doc.branch_id.round_seal)" style="max-height: 120px; max-width: 120px;"/>
+                                        <img t-att-src="image_data_uri(doc.branch_id.round_seal)" style="width: 130px; max-height: 130px; object-fit: contain;"/>
                                     </div>
                                 </div>
                                 <div class="col-4 text-center">
                                     <div t-if="doc.branch_id.accountant_signature" style="margin-bottom: 5px;">
-                                        <img t-att-src="image_data_uri(doc.branch_id.accountant_signature)" style="max-height: 80px; max-width: 200px;"/>
+                                        <img t-att-src="image_data_uri(doc.branch_id.accountant_signature)" style="width: 180px; max-height: 100px; object-fit: contain;"/>
                                     </div>
                                     <div t-else="" style="height: 80px; margin-bottom: 5px;">
                                         <br/><br/>
