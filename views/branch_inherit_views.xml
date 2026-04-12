@@ -17,6 +17,8 @@
                 <group string="Branch Settings">
                     <field name="accountant_id"/>
                     <field name="accountant_signature" widget="image" class="oe_avatar" />
+                    <field name="round_seal" widget="image" class="oe_avatar" />
+                    <field name="non_refundable_seal" widget="image" class="oe_avatar" />
                 </group>
             </xpath>
         </field>
