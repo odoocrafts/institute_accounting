@@ -52,5 +52,5 @@
         </field>
     </record>
 
-    <menuitem id="menu_institute_action_accounts" name="Bank/Cash Accounts" parent="menu_institute_accounting_configuration" action="action_institute_account" sequence="40"/>
+    <menuitem id="menu_institute_action_accounts" name="Bank/Cash Accounts" parent="menu_institute_accounting_config" action="action_institute_account" sequence="40"/>
 </odoo>
