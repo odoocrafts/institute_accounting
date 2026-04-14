@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Top Menu -->
-    <menuitem id="menu_institute_accounting_root" name="Books" sequence="50" web_icon="institute_accounting,static/description/icon.png"/>
+    <menuitem id="menu_institute_accounting_root" name="Books" sequence="50" action="action_institute_dashboard" web_icon="institute_accounting,static/description/icon.png"/>
     
     <!-- Submenus -->
+    <menuitem id="menu_institute_accounting_dashboard" name="Dashboard" parent="menu_institute_accounting_root" action="action_institute_dashboard" sequence="5"/>
     <menuitem id="menu_institute_accounting_transactions" name="Transactions" parent="menu_institute_accounting_root" sequence="10"/>
     <menuitem id="menu_institute_accounting_reports" name="Reporting" parent="menu_institute_accounting_root" sequence="20"/>
     <menuitem id="menu_institute_accounting_config" name="Configuration" parent="menu_institute_accounting_root" sequence="30" groups="institute_accounting.group_institute_accounting_manager"/>

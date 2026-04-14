@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="institute_accounting.Dashboard" owl="1">
+        <div class="o_action o_view_controller">
+            <div class="o_content o_accounting_dashboard bg-light h-100">
+                <div class="container-fluid py-4 h-100 overflow-auto">
+                    <!-- Header -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h2 class="text-primary fw-bold">Accounting Overview</h2>
+                        </div>
+                    </div>
+
+                    <t t-if="state.loading">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <!-- Top Cards -->
+                        <div class="row g-4 mb-4">
+                            <!-- Income Month -->
+                            <div class="col-md-3">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-success text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase fw-bold mb-0 text-white-50">Income (This Month)</h6>
+                                            <i class="fa fa-arrow-down fa-2x opacity-50"></i>
+                                        </div>
+                                        <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.income_month)"/></h3>
+                                        <small class="opacity-75">Today: <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.income_today)"/></small>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Expense Month -->
+                            <div class="col-md-3">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-danger text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase fw-bold mb-0 text-white-50">Expenses (This Month)</h6>
+                                            <i class="fa fa-arrow-up fa-2x opacity-50"></i>
+                                        </div>
+                                        <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.expense_month)"/></h3>
+                                        <small class="opacity-75">Today: <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.expense_today)"/></small>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Cash Balance -->
+                            <div class="col-md-3">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-primary text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase fw-bold mb-0 text-white-50">Petty Cash Balance</h6>
+                                            <i class="fa fa-money fa-2x opacity-50"></i>
+                                        </div>
+                                        <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.cash_balance)"/></h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Bank Balance -->
+                            <div class="col-md-3">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-info text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase fw-bold mb-0 text-white-50">Bank Balance</h6>
+                                            <i class="fa fa-university fa-2x opacity-50"></i>
+                                        </div>
+                                        <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.bank_balance)"/></h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Secondary Cards & Top Expenses -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-4">
+                                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-uppercase fw-bold text-muted mb-0">Total Fee Due</h6>
+                                            <i class="fa fa-exclamation-circle fa-2x text-warning opacity-50"></i>
+                                        </div>
+                                        <h3 class="mb-0 text-dark fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.fee_due)"/></h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card border-0 shadow-sm rounded-4 h-100">
+                                    <div class="card-body">
+                                        <h6 class="text-uppercase fw-bold text-muted mb-4">Top Expense Categories (This Month)</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-borderless table-sm">
+                                                <tbody>
+                                                    <t t-foreach="state.data.top_expenses" t-as="exp" t-key="exp.category">
+                                                        <tr>
+                                                            <td class="fw-bold text-dark"><t t-esc="exp.category"/></td>
+                                                            <td class="text-end fw-bold text-danger"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(exp.amount)"/></td>
+                                                        </tr>
+                                                    </t>
+                                                    <t t-if="!state.data.top_expenses.length">
+                                                        <tr><td class="text-muted">No expenses recorded this month.</td></tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Manager Specific Section -->
+                        <t t-if="state.data.is_manager">
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h4 class="fw-bold text-dark mb-3 mt-4">Branch Performance (This Month)</h4>
+                                </div>
+                                <t t-foreach="state.data.branch_metrics" t-as="bm" t-key="bm.name">
+                                    <div class="col-md-4 mb-4">
+                                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                                            <div class="card-body">
+                                                <h5 class="fw-bold text-dark mb-3 border-bottom pb-2"><t t-esc="bm.name"/></h5>
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="text-muted">Income:</span>
+                                                    <span class="text-success fw-bold"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.income)"/></span>
+                                                </div>
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="text-muted">Expense:</span>
+                                                    <span class="text-danger fw-bold"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.expense)"/></span>
+                                                </div>
+                                                <div class="d-flex justify-content-between mt-3 pt-2 border-top">
+                                                    <span class="fw-bold">Pnl/Loss:</span>
+                                                    <span t-attf-class="fw-bold {{ bm.profit >= 0 ? 'text-success' : 'text-danger' }}">
+                                                        <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.profit)"/>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
