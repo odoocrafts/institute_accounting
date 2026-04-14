@@ -21,6 +21,7 @@
         'views/type_views.xml',
         'views/transaction_views.xml',
         'views/user_views.xml',
+        'views/account_views.xml',
         'views/institute_semester_views.xml',
         'views/branch_inherit_views.xml',
         'views/student_inherit_views.xml',

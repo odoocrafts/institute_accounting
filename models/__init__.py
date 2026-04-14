@@ -5,3 +5,4 @@ from . import institute_semester
 from . import branch_inherit
 from . import student_inherit
 from . import fee_collection
+from . import institute_account

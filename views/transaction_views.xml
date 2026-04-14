@@ -61,8 +61,8 @@
                             <field name="semester_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" options="{'no_create': True}"/>
                             <field name="student_due" invisible="transaction_type != 'income' or not student_id" readonly="1"/>
 
-                            <field name="payment_method" readonly="state != 'draft'"/>
-                            <field name="bank_account_id" invisible="payment_method == 'cash'" readonly="state != 'draft'"/>
+                            <field name="account_id" options="{'no_create': True}" readonly="state != 'draft'" required="1"/>
+                            <field name="payment_method" readonly="1" force_save="1"/>
                             <field name="transaction_ref" invisible="payment_method == 'cash'" readonly="state != 'draft'"/>
                             <field name="payment_status" invisible="transaction_type != 'expense'" readonly="state != 'draft'"/>
                         </group>

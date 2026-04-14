@@ -49,9 +49,15 @@ class InstituteAccountingTransaction(models.Model):
         ('upi', 'UPI')
     ], string='Payment Method', required=True, default='cash')
     
-    bank_account_id = fields.Many2one('res.partner.bank', string='Bank Account')
+    account_id = fields.Many2one('institute.account', string='Account', domain="[('branch_id', '=', branch_id)]")
+    bank_account_id = fields.Many2one('res.partner.bank', string='Bank Account (Old)')
     transaction_ref = fields.Char(string='Transaction Reference')
-    
+
+    @api.onchange('account_id')
+    def _onchange_account_id(self):
+        if self.account_id:
+            self.payment_method = self.account_id.account_type
+        
     payment_status = fields.Selection([
         ('paid_by_branch', 'Paid by Branch'),
         ('send_to_hq', 'Send to HQ for Payment')
