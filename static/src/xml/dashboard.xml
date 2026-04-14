@@ -23,36 +23,36 @@
                         <div class="row g-4 mb-4">
                             <!-- Income Month -->
                             <div class="col-md-3">
-                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-success text-white">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-success text-dark pt-2">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase fw-bold mb-0 text-white-50">Income (This Month)</h6>
+                                            <h6 class="text-uppercase fw-bold mb-0 text-muted">Income (This Month)</h6>
                                             <i class="fa fa-arrow-down fa-2x opacity-50"></i>
                                         </div>
                                         <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.income_month)"/></h3>
-                                        <small class="opacity-75">Today: <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.income_today)"/></small>
+                                        <small class="text-muted">Today: <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.income_today)"/></small>
                                     </div>
                                 </div>
                             </div>
                             <!-- Expense Month -->
                             <div class="col-md-3">
-                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-danger text-white">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-danger text-dark pt-2">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase fw-bold mb-0 text-white-50">Expenses (This Month)</h6>
+                                            <h6 class="text-uppercase fw-bold mb-0 text-muted">Expenses (This Month)</h6>
                                             <i class="fa fa-arrow-up fa-2x opacity-50"></i>
                                         </div>
                                         <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.expense_month)"/></h3>
-                                        <small class="opacity-75">Today: <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.expense_today)"/></small>
+                                        <small class="text-muted">Today: <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.expense_today)"/></small>
                                     </div>
                                 </div>
                             </div>
                             <!-- Cash Balance -->
                             <div class="col-md-3">
-                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-primary text-white">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-primary text-dark pt-2">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase fw-bold mb-0 text-white-50">Petty Cash Balance</h6>
+                                            <h6 class="text-uppercase fw-bold mb-0 text-muted">Petty Cash Balance</h6>
                                             <i class="fa fa-money fa-2x opacity-50"></i>
                                         </div>
                                         <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.cash_balance)"/></h3>
@@ -61,10 +61,10 @@
                             </div>
                             <!-- Bank Balance -->
                             <div class="col-md-3">
-                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-info text-white">
+                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-info text-dark pt-2">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase fw-bold mb-0 text-white-50">Bank Balance</h6>
+                                            <h6 class="text-uppercase fw-bold mb-0 text-muted">Bank Balance</h6>
                                             <i class="fa fa-university fa-2x opacity-50"></i>
                                         </div>
                                         <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.bank_balance)"/></h3>
