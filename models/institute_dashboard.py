@@ -32,8 +32,8 @@ class InstituteDashboard(models.AbstractModel):
         bank_balance = sum(accounts.filtered(lambda a: a.account_type in ['bank', 'upi']).mapped('current_balance'))
         
         # 2. Fee Due
-        students = self.env['student.student'].search([('state', '=', 'confirmed')] + student_domain_branch)
-        fee_due = sum(students.mapped('pending_amount'))
+        students = self.env['institute.accounting.student'].search(domain_branch)
+        fee_due = sum(students.mapped('total_due'))
 
         # 3. Income / Expenses
         transactions = self.env['institute.accounting.transaction'].search([('state', '=', 'paid')] + domain_branch)
