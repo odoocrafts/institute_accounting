@@ -2,11 +2,11 @@
 <odoo>
     <record id="action_report_fee_receipt" model="ir.actions.report">
         <field name="name">Fee Receipt</field>
-        <field name="model">student.fee.payment</field>
+        <field name="model">institute.accounting.transaction</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">institute_accounting.report_fee_receipt_template</field>
         <field name="report_file">institute_accounting.report_fee_receipt_template</field>
-        <field name="binding_model_id" ref="student_management.model_student_fee_payment"/>
+        <field name="binding_model_id" ref="institute_accounting.model_institute_accounting_transaction"/>
         <field name="binding_type">report</field>
     </record>
 
@@ -50,14 +50,14 @@
                                     <span style="font-size: 15px;"><strong><span t-field="doc.student_id.name"/></strong></span><br/>
                                     <strong>Course:</strong> <span t-field="doc.course_id.name"/><br/>
                                     <strong>Batch:</strong> <span t-if="doc.batch_id" t-field="doc.batch_id.name"/><br/>
-                                    <strong>Semester:</strong> <span t-if="doc.semester_id" t-field="doc.semester_id.name"/><br/>
+                                    <strong>Semester:</strong> <span t-if="doc.accounting_fee_line_id" t-field="doc.accounting_fee_line_id.semester"/><br/>
                                 </div>
                                 <div class="col-5 company-details text-right">
                                     <h3 class="mb-2" style="margin-top: 0; color: #0d6efd; letter-spacing: 1px;"><strong>TAX INVOICE</strong></h3>
                                     <strong>Receipt No:</strong> <span t-field="doc.name"/><br/>
-                                    <strong>Date:</strong> <span t-field="doc.payment_date"/><br/>
+                                    <strong>Date:</strong> <span t-field="doc.date"/><br/>
                                     <strong>Payment Method:</strong> <span class="text-capitalize" t-field="doc.payment_method"/><br/>
-                                    <span t-if="doc.reference"><strong>Ref:</strong> <span t-field="doc.reference"/></span>
+                                    <span t-if="doc.transaction_ref"><strong>Ref:</strong> <span t-field="doc.transaction_ref"/></span>
                                 </div>
                             </div>
                             
@@ -99,7 +99,7 @@
                                             <strong>ADMISSION / COURSE FEES</strong><br/>
                                             <span class="text-muted" style="font-size: 11px;">
                                                 <span t-if="doc.course_id" t-field="doc.course_id.name"/> 
-                                                <t t-if="doc.semester_id"> - <span t-field="doc.semester_id.name"/></t>
+                                                <t t-if="doc.accounting_fee_line_id"> - <span t-field="doc.accounting_fee_line_id.semester"/></t>
                                             </span>
                                         </td>
                                         <td class="text-center">9992</td>

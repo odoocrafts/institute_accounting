@@ -3,7 +3,6 @@ from . import institute_transaction
 from . import res_users
 from . import institute_semester
 from . import branch_inherit
-from . import student_inherit
-from . import fee_collection
+from . import accounting_student
 from . import institute_account
 from . import institute_dashboard
