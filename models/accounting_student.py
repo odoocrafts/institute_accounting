@@ -31,9 +31,10 @@ class InstituteAccountingStudent(models.Model):
 class InstituteAccountingStudentFee(models.Model):
     _name = 'institute.accounting.student.fee'
     _description = 'Accounting Student Fee Semester Line'
+    _rec_name = 'semester_id'
 
     student_id = fields.Many2one('institute.accounting.student', string='Student', required=True, ondelete='cascade')
-    semester = fields.Char(string='Semester', required=True, help='e.g., 1st Sem, 2nd Sem')
+    semester_id = fields.Many2one('institute.semester', string='Semester', required=True)
     total_fee = fields.Float(string='Total Fee', required=True, default=0.0)
     
     # We allow the accountant to either manually sync this or let the system compute.

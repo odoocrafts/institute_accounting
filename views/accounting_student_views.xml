@@ -52,7 +52,7 @@
                         <page string="Semester Dues">
                             <field name="fee_line_ids">
                                 <tree editable="bottom">
-                                    <field name="semester" placeholder="e.g. 1st Sem"/>
+                                    <field name="semester_id" options="{'no_create': True}"/>
                                     <field name="total_fee"/>
                                     <field name="paid_amount"/>
                                     <field name="due_amount"/>
