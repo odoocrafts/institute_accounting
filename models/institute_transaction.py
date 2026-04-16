@@ -28,8 +28,8 @@ class InstituteAccountingTransaction(models.Model):
     expense_type_id = fields.Many2one('institute.expense.type', string='Expense Type')
     
     # Fee Collection Fields
-    course_id = fields.Many2one('product.product', string='Course')
-    batch_id = fields.Many2one('student.batch', string='Batch', domain="[('course_id', '=', course_id)]")
+    course_id = fields.Many2one('institute.accounting.course', string='Course')
+    batch_id = fields.Many2one('institute.accounting.batch', string='Batch', domain="[('course_id', '=', course_id)]")
     student_id = fields.Many2one('institute.accounting.student', string='Student', domain="['|', ('batch_id', '=', batch_id), ('course_id', '=', course_id)]")
     
     # We map directly to the semester fee line

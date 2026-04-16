@@ -8,8 +8,8 @@ class InstituteAccountingStudent(models.Model):
 
     name = fields.Char(string='Name', required=True, tracking=True)
     branch_id = fields.Many2one('student.branch', string='Branch', required=True, tracking=True)
-    course_id = fields.Many2one('product.product', string='Course', domain="[('type', '=', 'service')]")
-    batch_id = fields.Many2one('student.batch', string='Batch', domain="[('course_id', '=', course_id)]")
+    course_id = fields.Many2one('institute.accounting.course', string='Course')
+    batch_id = fields.Many2one('institute.accounting.batch', string='Batch', domain="[('course_id', '=', course_id)]")
     
     student_number = fields.Char(string='Student Number')
     parent_number = fields.Char(string='Parent Number')

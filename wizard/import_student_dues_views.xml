@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_institute_accounting_import_student_dues_form" model="ir.ui.view">
+        <field name="name">institute.accounting.import.student.dues.form</field>
+        <field name="model">institute.accounting.import.student.dues</field>
+        <field name="arch" type="xml">
+            <form string="Import Student Dues">
+                <sheet>
+                    <p class="text-muted">
+                        Upload the standard Excel file to automatically map students and their semester dues. 
+                        Ensure columns include NAME, STUDENT NUMBER, PARENT NUMBER, and any columns containing "SEM" (e.g. 1st Sem).
+                    </p>
+                    <group>
+                        <group>
+                            <field name="branch_id"/>
+                            <field name="course_id"/>
+                            <field name="batch_id"/>
+                        </group>
+                        <group>
+                            <field name="file" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_import" string="Import" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_institute_accounting_import_student_dues" model="ir.actions.act_window">
+        <field name="name">Import Students &amp; Dues</field>
+        <field name="res_model">institute.accounting.import.student.dues</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_institute_accounting_import_student_dues" 
+              name="Import Excel Dues" 
+              parent="menu_institute_accounting_transactions" 
+              action="action_institute_accounting_import_student_dues" 
+              sequence="6"/>
+</odoo>
