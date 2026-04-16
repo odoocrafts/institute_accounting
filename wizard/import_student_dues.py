@@ -21,32 +21,46 @@ class ImportStudentDuesWizard(models.TransientModel):
     file_name = fields.Char('File Name')
 
     def action_import(self):
-        if not openpyxl:
-            raise UserError(_("The 'openpyxl' python library is required to import Excel files. Please contact your administrator."))
-
         if not self.file:
             raise UserError(_("Please upload an Excel file."))
 
+        file_content = base64.b64decode(self.file)
+        all_rows = []
         try:
-            file_content = base64.b64decode(self.file)
+            if not openpyxl:
+                raise ImportError("openpyxl missing")
             workbook = openpyxl.load_workbook(filename=io.BytesIO(file_content), data_only=True)
             sheet = workbook.active
+            for row in sheet.iter_rows(values_only=True):
+                all_rows.append(list(row))
         except Exception as e:
-            raise UserError(_("Error reading file: %s") % str(e))
+            try:
+                import xlrd
+                workbook = xlrd.open_workbook(file_contents=file_content)
+                sheet = workbook.sheet_by_index(0)
+                for rx in range(sheet.nrows):
+                    all_rows.append(sheet.row_values(rx))
+            except ImportError:
+                raise UserError(_("Error reading file: %s. (Make sure you are uploading a valid .xlsx file or install xlrd for .xls support)") % str(e))
+            except Exception as inner_e:
+                raise UserError(_("Error reading file. The file might be corrupted or in an unsupported format. %s") % str(inner_e))
 
-        # We need to find the header row. In the spreadsheet shown, row 3 is the header.
-        # But we will scan the first 10 rows to find a cell containing 'NAME'.
+        if not all_rows:
+            raise UserError(_("The uploaded file is empty."))
+
+        # We need to find the header row.
+        # We will scan the first 10 rows to find a cell containing 'NAME'.
         header_row_idx = None
-        for row_idx, row in enumerate(sheet.iter_rows(min_row=1, max_row=10, values_only=True), start=1):
+        for row_idx, row in enumerate(all_rows[:10]):
             if any(cell and isinstance(cell, str) and 'NAME' in cell.upper() for cell in row):
                 header_row_idx = row_idx
                 break
 
-        if not header_row_idx:
+        if header_row_idx is None:
             raise UserError(_("Could not find a header row containing 'NAME'. Please ensure the standard template is used."))
 
         # Map column indexes based on header row
-        headers = [str(cell).upper().strip() if cell else '' for cell in sheet[header_row_idx]]
+        headers = [str(cell).upper().strip() if cell else '' for cell in all_rows[header_row_idx]]
         
         try:
             name_idx = headers.index('NAME')
@@ -73,9 +87,9 @@ class ImportStudentDuesWizard(models.TransientModel):
             sem_cache[sem_name] = sem_master.id
 
         created_count = 0
-        for row in sheet.iter_rows(min_row=header_row_idx + 1, values_only=True):
+        for row in all_rows[header_row_idx + 1:]:
             # Skip empty rows or "TOTAL" rows
-            if not row[name_idx] or 'TOTAL' in str(row[name_idx]).upper():
+            if len(row) <= name_idx or not row[name_idx] or 'TOTAL' in str(row[name_idx]).upper():
                 continue
 
             name = str(row[name_idx]).strip()
