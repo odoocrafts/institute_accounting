@@ -4,6 +4,8 @@
         <field name="name">Accounting Courses</field>
         <field name="res_model">institute.accounting.course</field>
         <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
     </record>
 
     <record id="action_institute_accounting_batch" model="ir.actions.act_window">
