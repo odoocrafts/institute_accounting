@@ -7,6 +7,7 @@ import { Component, useState, onWillStart } from "@odoo/owl";
 export class AccountingDashboard extends Component {
     setup() {
         this.orm = useService("orm");
+        this.action = useService("action");
         this.state = useState({
             data: {},
             loading: true,
@@ -39,6 +40,15 @@ export class AccountingDashboard extends Component {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         }).format(number);
+    }
+
+    openNewTransaction() {
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            res_model: "institute.accounting.transaction",
+            views: [[false, "form"]],
+            target: "current",
+        });
     }
 }
 
