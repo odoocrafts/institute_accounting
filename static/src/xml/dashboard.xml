@@ -6,8 +6,11 @@
                 <div class="container-fluid py-4 h-100 overflow-auto">
                     <!-- Header -->
                     <div class="row mb-4">
-                        <div class="col-12">
-                            <h2 class="text-primary fw-bold">Accounting Overview</h2>
+                        <div class="col-12 d-flex justify-content-between align-items-center">
+                            <h2 class="text-primary fw-bold mb-0">Accounting Overview</h2>
+                            <button class="btn btn-primary" t-on-click="openNewTransaction">
+                                <i class="fa fa-plus me-2"></i>New Transaction
+                            </button>
                         </div>
                     </div>
 
