@@ -57,39 +57,39 @@
                             </div>
                         </div>
 
-                        <table class="table table-bordered mt16 mb16" style="border: 1px solid #495057; font-size: 15px;">
+                        <table class="table table-bordered mt16 mb32" style="border: 1px solid #495057; font-size: 15px;">
                             <tr>
-                                <th width="20%" class="bg-light p-2">Branch</th>
-                                <td width="30%" class="p-2">
+                                <th width="20%" class="bg-light p-3">Branch</th>
+                                <td width="30%" class="p-3">
                                     <strong t-field="doc.branch_id.name"/>
                                 </td>
-                                <th width="20%" class="bg-light p-2">Date</th>
-                                <td class="p-2"><span t-field="doc.date"/></td>
+                                <th width="20%" class="bg-light p-3">Date</th>
+                                <td class="p-3"><span t-field="doc.date"/></td>
                             </tr>
                             <tr>
-                                <th class="bg-light p-2">Type</th>
-                                <td class="p-2"><span class="text-capitalize" t-field="doc.transaction_type"/></td>
-                                <th class="bg-light p-2">Category</th>
-                                <td class="p-2">
+                                <th class="bg-light p-3">Type</th>
+                                <td class="p-3"><span class="text-capitalize" t-field="doc.transaction_type"/></td>
+                                <th class="bg-light p-3">Category</th>
+                                <td class="p-3">
                                     <span t-if="doc.transaction_type == 'income'" t-field="doc.fee_type_id.name"/>
                                     <span t-if="doc.transaction_type == 'expense'" t-field="doc.expense_type_id.name"/>
                                 </td>
                             </tr>
                             <tr t-if="doc.transaction_type == 'expense'">
-                                <th class="bg-light p-2">Paid To</th>
-                                <td class="p-2"><span t-field="doc.paid_to"/></td>
-                                <th class="bg-light p-2">Reference</th>
-                                <td class="p-2"><span t-esc="doc.transaction_ref or 'N/A'"/></td>
+                                <th class="bg-light p-3">Paid To</th>
+                                <td class="p-3"><span t-field="doc.paid_to"/></td>
+                                <th class="bg-light p-3">Reference</th>
+                                <td class="p-3"><span t-esc="doc.transaction_ref or 'N/A'"/></td>
                             </tr>
                             <tr t-if="doc.transaction_type == 'income'">
-                                <th class="bg-light p-2">Reference</th>
-                                <td colspan="3" class="p-2"><span t-esc="doc.transaction_ref or 'N/A'"/></td>
+                                <th class="bg-light p-3">Reference</th>
+                                <td colspan="3" class="p-3"><span t-esc="doc.transaction_ref or 'N/A'"/></td>
                             </tr>
                             <tr>
-                                <th class="bg-light p-2">Payment Method</th>
-                                <td class="p-2"><span class="text-capitalize" t-field="doc.payment_method"/></td>
-                                <th class="bg-light text-right p-2">Amount</th>
-                                <td class="text-right p-2"><strong style="font-size: 16px;"><span t-field="doc.amount" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/></strong></td>
+                                <th class="bg-light p-3">Payment Method</th>
+                                <td class="p-3"><span class="text-capitalize" t-field="doc.payment_method"/></td>
+                                <th class="bg-light text-right p-3">Amount</th>
+                                <td class="text-right p-3"><strong style="font-size: 16px;"><span t-field="doc.amount" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/></strong></td>
                             </tr>
                         </table>
 
@@ -97,7 +97,7 @@
                             <strong>Description:</strong>
                             <p t-field="doc.description"/>
                         </div>
-                        <div class="row mt64 pt64" style="page-break-inside: avoid;">
+                        <div class="row mt32 pt16" style="page-break-inside: avoid;">
                             <div class="col-6 text-center">
                                 <div style="height: 100px; margin-bottom: 5px; display: table; width: 60%; margin: 0 auto;">
                                     <div style="display: table-cell; vertical-align: bottom; height: 100px; padding-bottom: 5px;">
