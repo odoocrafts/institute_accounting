@@ -130,9 +130,9 @@
                                         <span class="text-muted">Amount in words:</span><br/>
                                         <strong>INR <span class="text-capitalize" t-esc="env.company.currency_id.amount_to_text(amount_total).replace('Rupees', '').replace('Rupee', '')"/> Only</strong>
                                     </div>
-                                    <div t-if="doc.notes" class="mt-3" style="font-size: 12px; border: 1px solid #dee2e6; padding: 10px; border-radius: 4px;">
+                                    <div t-if="doc.description" class="mt-3" style="font-size: 12px; border: 1px solid #dee2e6; padding: 10px; border-radius: 4px;">
                                         <strong>Notes / Terms:</strong>
-                                        <p t-field="doc.notes" class="text-muted mb-0"/>
+                                        <p t-field="doc.description" class="text-muted mb-0"/>
                                     </div>
                                 </div>
                                 
