@@ -9,8 +9,21 @@ export class AccountingDashboard extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.state = useState({
-            data: {},
+            data: {
+                top_expenses: [],
+                branch_metrics: [],
+                cash_balance: 0,
+                bank_balance: 0,
+                fee_due: 0,
+                income_month: 0,
+                expense_month: 0,
+                income_today: 0,
+                expense_today: 0,
+                currency_symbol: '$',
+                is_manager: false,
+            },
             loading: true,
+            error: false,
         });
 
         onWillStart(async () => {

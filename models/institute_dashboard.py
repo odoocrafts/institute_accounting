@@ -12,7 +12,8 @@ class InstituteDashboard(models.AbstractModel):
         domain_branch = []
         student_domain_branch = []
         if not is_manager:
-            branch = self.env['student.branch'].search([('accountant_id', '=', self.env.user.id)], limit=1)
+            # Use sudo() to ensure no access error if branch accountant lacks direct read access to student.branch
+            branch = self.env['student.branch'].sudo().search([('accountant_id', '=', self.env.user.id)], limit=1)
             if branch:
                 domain_branch = [('branch_id', '=', branch.id)]
                 student_domain_branch = [('branch', '=', branch.id)]
@@ -38,14 +39,14 @@ class InstituteDashboard(models.AbstractModel):
         # 3. Income / Expenses
         transactions = self.env['institute.accounting.transaction'].search([('state', '=', 'paid')] + domain_branch)
         
-        income_month = sum(transactions.filtered(lambda t: t.transaction_type == 'income' and t.date >= first_day_month).mapped('amount'))
-        expense_month = sum(transactions.filtered(lambda t: t.transaction_type == 'expense' and t.date >= first_day_month).mapped('amount'))
+        income_month = sum(transactions.filtered(lambda t: t.transaction_type == 'income' and t.date and t.date >= first_day_month).mapped('amount'))
+        expense_month = sum(transactions.filtered(lambda t: t.transaction_type == 'expense' and t.date and t.date >= first_day_month).mapped('amount'))
         
         income_today = sum(transactions.filtered(lambda t: t.transaction_type == 'income' and t.date == today).mapped('amount'))
         expense_today = sum(transactions.filtered(lambda t: t.transaction_type == 'expense' and t.date == today).mapped('amount'))
         
         # 4. Top Expenses
-        expenses = transactions.filtered(lambda t: t.transaction_type == 'expense' and t.date >= first_day_month)
+        expenses = transactions.filtered(lambda t: t.transaction_type == 'expense' and t.date and t.date >= first_day_month)
         expense_dict = {}
         for exp in expenses:
             cat_name = exp.expense_type_id.name or 'Other'
@@ -56,9 +57,9 @@ class InstituteDashboard(models.AbstractModel):
         # 5. Branch Metrics (Manager only)
         branch_metrics = []
         if is_manager:
-            branches = self.env['student.branch'].search([])
+            branches = self.env['student.branch'].sudo().search([])
             for b in branches:
-                b_trans = transactions.filtered(lambda t: t.branch_id.id == b.id and t.date >= first_day_month)
+                b_trans = transactions.filtered(lambda t: t.branch_id.id == b.id and t.date and t.date >= first_day_month)
                 inc = sum(b_trans.filtered(lambda t: t.transaction_type == 'income').mapped('amount'))
                 exp = sum(b_trans.filtered(lambda t: t.transaction_type == 'expense').mapped('amount'))
                 branch_metrics.append({
