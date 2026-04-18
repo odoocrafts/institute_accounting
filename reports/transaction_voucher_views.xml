@@ -99,8 +99,8 @@
                         </div>
                         <div class="row mt32 pt16" style="page-break-inside: avoid;">
                             <div class="col-4 text-center">
-                                <div style="height: 100px; margin-bottom: 5px; display: table; width: 80%; margin: 0 auto;">
-                                    <div style="display: table-cell; vertical-align: bottom; height: 100px; padding-bottom: 5px;">
+                                <div style="height: 180px; margin-bottom: 5px; display: table; width: 80%; margin: 0 auto;">
+                                    <div style="display: table-cell; vertical-align: bottom; height: 180px; padding-bottom: 5px;">
                                         <strong style="font-size: 16px;" t-esc="doc.branch_id.accountant_id.name or doc.create_uid.name or 'Accountant'"></strong>
                                     </div>
                                 </div>
@@ -110,19 +110,19 @@
                             </div>
                             <!-- Round Seal -->
                             <div class="col-4 text-center">
-                                <div t-if="doc.branch_id.round_seal" style="height: 100px; margin-bottom: 5px;">
-                                    <img t-att-src="image_data_uri(doc.branch_id.round_seal)" style="max-height: 100px; max-width: 150px; mix-blend-mode: multiply;"/>
+                                <div t-if="doc.branch_id.round_seal" style="height: 180px; margin-bottom: 5px;">
+                                    <img t-att-src="image_data_uri(doc.branch_id.round_seal)" style="max-height: 180px; max-width: 300px; mix-blend-mode: multiply;"/>
                                 </div>
-                                <div t-else="" style="height: 100px; margin-bottom: 5px;">
+                                <div t-else="" style="height: 180px; margin-bottom: 5px;">
                                     <br/>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
-                                <div t-if="doc.branch_id.accountant_signature" style="height: 100px; margin-bottom: 5px;">
-                                    <img t-att-src="image_data_uri(doc.branch_id.accountant_signature)" style="max-height: 100px; max-width: 256px; mix-blend-mode: multiply;"/>
+                                <div t-if="doc.branch_id.accountant_signature" style="height: 180px; margin-bottom: 5px;">
+                                    <img t-att-src="image_data_uri(doc.branch_id.accountant_signature)" style="max-height: 180px; max-width: 400px; mix-blend-mode: multiply;"/>
                                 </div>
-                                <div t-else="" style="height: 100px; margin-bottom: 5px; display: table; width: 80%; margin: 0 auto;">
-                                    <div style="display: table-cell; vertical-align: bottom; height: 100px;">
+                                <div t-else="" style="height: 180px; margin-bottom: 5px; display: table; width: 80%; margin: 0 auto;">
+                                    <div style="display: table-cell; vertical-align: bottom; height: 180px;">
                                         <br/>
                                     </div>
                                 </div>
