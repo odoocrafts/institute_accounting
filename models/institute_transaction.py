@@ -26,6 +26,7 @@ class InstituteAccountingTransaction(models.Model):
     
     fee_type_id = fields.Many2one('institute.fee.type', string='Fee Type')
     expense_type_id = fields.Many2one('institute.expense.type', string='Expense Type')
+    paid_to = fields.Char(string='Paid To')
     
     # Fee Collection Fields
     course_id = fields.Many2one('institute.accounting.course', string='Course')

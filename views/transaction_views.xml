@@ -18,6 +18,7 @@
                 <field name="date"/>
                 <field name="branch_id"/>
                 <field name="transaction_type"/>
+                <field name="paid_to" optional="show"/>
                 <field name="payment_method"/>
                 <field name="amount" sum="Total Amount"/>
                 <field name="state" widget="badge" decoration-info="state=='draft'" decoration-warning="state=='submitted'" decoration-success="state=='paid' or state=='approved'"/>
@@ -53,6 +54,7 @@
                         <group>
                             <field name="fee_type_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" required="transaction_type == 'income'"/>
                             <field name="expense_type_id" invisible="transaction_type != 'expense'" readonly="state != 'draft'" required="transaction_type == 'expense'"/>
+                            <field name="paid_to" invisible="transaction_type != 'expense'" readonly="state != 'draft'"/>
                             
                             <!-- Fee Collection Fields -->
                             <field name="course_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" options="{'no_create': True}"/>
