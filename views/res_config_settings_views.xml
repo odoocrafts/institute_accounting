@@ -8,9 +8,12 @@
         <field name="arch" type="xml">
             <xpath expr="//form" position="inside">
                 <app_settings_block data-string="Accounting" id="institute_accounting" string="Institute Accounting" data-key="institute_accounting" groups="base.group_system">
-                    <block title="Fee Receipts">
+                    <block title="Fee Receipts &amp; Vouchers">
                         <setting string="Fee Receipt Prefix" help="Global prefix for the fee receipts (e.g. JBIA)">
                             <field name="fee_receipt_prefix"/>
+                        </setting>
+                        <setting string="Expense Voucher Prefix" help="Global prefix for the expense vouchers (e.g. VOU)">
+                            <field name="expense_voucher_prefix"/>
                         </setting>
                     </block>
                 </app_settings_block>

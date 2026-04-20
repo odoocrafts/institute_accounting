@@ -83,10 +83,29 @@ class InstituteAccountingTransaction(models.Model):
             if not vals.get('branch_id'):
                 vals['branch_id'] = self._default_branch_from_accountant()
             if vals.get('name', _('New')) == _('New'):
-                seq_val = self.env['ir.sequence'].next_by_code('institute.accounting.transaction')
+                transaction_type = vals.get('transaction_type', 'income')
+                branch_id = vals.get('branch_id')
+                
+                # Dynamic sequence code
+                seq_code = f"institute.accounting.{transaction_type}.{branch_id}"
+                seq = self.env['ir.sequence'].search([('code', '=', seq_code)], limit=1)
+                
+                if not seq:
+                    branch = self.env['student.branch'].browse(branch_id)
+                    seq = self.env['ir.sequence'].sudo().create({
+                        'name': f"{transaction_type.capitalize()} Transaction Sequence - Branch {branch.name}",
+                        'code': seq_code,
+                        'implementation': 'standard',
+                        'padding': 4,
+                    })
+                
+                seq_val = seq._next()
+                
                 if seq_val:
-                    # e.g., JBIA/0001/26-27
-                    prefix = self.env['ir.config_parameter'].sudo().get_param('institute_accounting.fee_receipt_prefix', default='JBIA')
+                    if transaction_type == 'income':
+                        prefix = self.env['ir.config_parameter'].sudo().get_param('institute_accounting.fee_receipt_prefix', default='JBIA')
+                    else:
+                        prefix = self.env['ir.config_parameter'].sudo().get_param('institute_accounting.expense_voucher_prefix', default='VOU')
                     
                     date_val = vals.get('date') or fields.Date.context_today(self)
                     if isinstance(date_val, str):
