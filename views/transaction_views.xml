@@ -36,7 +36,8 @@
                     <button name="action_print_voucher" type="object" string="Print Voucher" invisible="transaction_type == 'income'" class="oe_highlight"/>
                     <button name="action_print_receipt" type="object" string="Print Receipt" invisible="transaction_type != 'income' or state != 'paid'" class="oe_highlight"/>
                     <button name="action_paid" type="object" string="Mark as Paid / Received" invisible="state != 'draft'" class="oe_highlight"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,paid"/>
+                    <button name="action_refund" type="object" string="Refund" invisible="transaction_type != 'income' or state != 'paid'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,paid,refunded"/>
                 </header>
                 <sheet>
                     <div class="oe_title">

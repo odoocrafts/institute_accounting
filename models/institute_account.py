@@ -25,7 +25,7 @@ class InstituteAccount(models.Model):
             incomes = self.env['institute.accounting.transaction'].search([
                 ('account_id', '=', rec.id),
                 ('transaction_type', '=', 'income'),
-                ('state', '=', 'paid')
+                ('state', 'in', ['paid', 'refunded'])
             ])
             expenses = self.env['institute.accounting.transaction'].search([
                 ('account_id', '=', rec.id),

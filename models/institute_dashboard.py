@@ -37,7 +37,7 @@ class InstituteDashboard(models.AbstractModel):
         fee_due = sum(students.mapped('total_due'))
 
         # 3. Income / Expenses
-        transactions = self.env['institute.accounting.transaction'].search([('state', '=', 'paid')] + domain_branch)
+        transactions = self.env['institute.accounting.transaction'].search([('state', 'in', ['paid', 'refunded'])] + domain_branch)
         
         income_month = sum(transactions.filtered(lambda t: t.transaction_type == 'income' and t.date and t.date >= first_day_month).mapped('amount'))
         expense_month = sum(transactions.filtered(lambda t: t.transaction_type == 'expense' and t.date and t.date >= first_day_month).mapped('amount'))

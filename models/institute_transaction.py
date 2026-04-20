@@ -71,7 +71,8 @@ class InstituteAccountingTransaction(models.Model):
         ('draft', 'Draft'),
         ('submitted', 'Submitted'),
         ('approved', 'Approved'),
-        ('paid', 'Paid')
+        ('paid', 'Paid'),
+        ('refunded', 'Refunded')
     ], string='Status', required=True, default='draft', copy=False)
     
     description = fields.Text(string='Description')
@@ -136,3 +137,21 @@ class InstituteAccountingTransaction(models.Model):
     def action_print_receipt(self):
         for rec in self:
             return self.env.ref('institute_accounting.action_report_fee_receipt').report_action(rec)
+
+    def action_refund(self):
+        for rec in self:
+            if rec.transaction_type != 'income' or rec.state != 'paid':
+                continue
+            return {
+                'name': _('Refund Fee'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'institute.accounting.refund.wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'default_transaction_id': rec.id,
+                    'default_amount': rec.amount,
+                    'default_account_id': rec.account_id.id,
+                    'default_payment_method': rec.payment_method,
+                }
+            }
