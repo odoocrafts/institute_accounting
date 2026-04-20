@@ -31,9 +31,12 @@ class TransactionRefundWizard(models.TransientModel):
         # 2. Change original transaction to 'refunded'
         self.transaction_id.state = 'refunded'
         
-        # 3. Add chatter message on the original record
+        # 3. Add reason to original record description
         msg = f"Reverted fee and initiated refund via {self.payment_method.capitalize()}. Reason: {self.reason}"
-        self.transaction_id.message_post(body=msg)
+        if self.transaction_id.description:
+            self.transaction_id.description = f"{self.transaction_id.description}\n\n[REFUND NOTE]: {msg}"
+        else:
+            self.transaction_id.description = f"[REFUND NOTE]: {msg}"
         
         # 4. Find or create Refund Expense Type
         expense_type = self.env['institute.expense.type'].search([('name', '=', 'Fee Refund')], limit=1)
