@@ -8,6 +8,44 @@
         <field name="context">{}</field>
     </record>
 
+    <record id="view_institute_accounting_batch_tree" model="ir.ui.view">
+        <field name="name">institute.accounting.batch.tree</field>
+        <field name="model">institute.accounting.batch</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="course_id"/>
+                <field name="batch_period"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_institute_accounting_batch_form" model="ir.ui.view">
+        <field name="name">institute.accounting.batch.form</field>
+        <field name="model">institute.accounting.batch</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Batch Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="course_id"/>
+                            <field name="batch_period" placeholder="e.g. 2026-2029"/>
+                        </group>
+                        <group>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
     <record id="action_institute_accounting_batch" model="ir.actions.act_window">
         <field name="name">Accounting Batches</field>
         <field name="res_model">institute.accounting.batch</field>

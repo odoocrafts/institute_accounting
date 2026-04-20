@@ -10,6 +10,7 @@ class InstituteAccountingStudent(models.Model):
     branch_id = fields.Many2one('student.branch', string='Branch', required=True, tracking=True)
     course_id = fields.Many2one('institute.accounting.course', string='Course')
     batch_id = fields.Many2one('institute.accounting.batch', string='Batch', domain="[('course_id', '=', course_id)]")
+    batch_period = fields.Char(related='batch_id.batch_period', string='Batch Period', store=True)
     
     student_number = fields.Char(string='Student Number')
     parent_number = fields.Char(string='Parent Number')

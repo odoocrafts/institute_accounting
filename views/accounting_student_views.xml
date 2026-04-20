@@ -5,6 +5,25 @@
         <field name="name">Accounting Students</field>
         <field name="res_model">institute.accounting.student</field>
         <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_group_by_batch_period': 1}</field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_institute_accounting_student_search" model="ir.ui.view">
+        <field name="name">institute.accounting.student.search</field>
+        <field name="model">institute.accounting.student</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="branch_id"/>
+                <field name="course_id"/>
+                <field name="batch_id"/>
+                <field name="batch_period"/>
+                <group expand="0" string="Group By">
+                    <filter string="Batch Period" name="group_by_batch_period" context="{'group_by':'batch_period'}"/>
+                </group>
+            </search>
+        </field>
     </record>
 
     <!-- Tree View -->
@@ -16,6 +35,7 @@
                 <field name="name"/>
                 <field name="branch_id"/>
                 <field name="course_id"/>
+                <field name="batch_period"/>
                 <field name="student_number"/>
                 <field name="parent_number"/>
                 <field name="total_fee" sum="Total Configured Fee"/>

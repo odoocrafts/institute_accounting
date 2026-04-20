@@ -13,4 +13,5 @@ class InstituteAccountingBatch(models.Model):
     
     name = fields.Char(string='Batch Name', required=True)
     course_id = fields.Many2one('institute.accounting.course', string='Course', required=True)
+    batch_period = fields.Char(string='Batch Period')
     active = fields.Boolean(default=True)
