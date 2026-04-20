@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.institute.accounting</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="90"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('app_settings_block')]" position="inside">
+                <div class="app_settings_block" data-string="Accounting" id="institute_accounting" string="Institute Accounting" data-key="institute_accounting" groups="base.group_system">
+                    <h2>Fee Receipts</h2>
+                    <div class="row mt16 o_settings_container" id="fee_receipt_settings">
+                        <div class="col-12 col-lg-6 o_setting_box" id="fee_receipt_prefix_setting">
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">Fee Receipt Prefix</span>
+                                <div class="text-muted">
+                                    Global prefix for the fee receipts (e.g. JBIA)
+                                </div>
+                                <div class="mt16">
+                                    <field name="fee_receipt_prefix" class="o_light_label"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_institute_accounting_config_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'institute_accounting', 'bin_size': False}</field>
+    </record>
+
+    <menuitem id="menu_institute_accounting_settings" name="Settings" parent="menu_institute_accounting_config" action="action_institute_accounting_config_settings" sequence="100"/>
+</odoo>

@@ -7,3 +7,4 @@ from . import institute_accounting_course_batch
 from . import accounting_student
 from . import institute_account
 from . import institute_dashboard
+from . import res_config_settings

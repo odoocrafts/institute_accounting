@@ -31,6 +31,7 @@
         'reports/transaction_report_views.xml',
         'reports/fee_collection_report_views.xml',
         'reports/transaction_voucher_views.xml',
+        'views/res_config_settings_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

@@ -64,7 +64,7 @@
                                     <strong t-field="doc.branch_id.name"/>
                                 </td>
                                 <th width="20%" class="bg-light p-3">Date</th>
-                                <td class="p-3"><span t-field="doc.date"/></td>
+                                <td class="p-3"><span t-field="doc.date" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/></td>
                             </tr>
                             <tr>
                                 <th class="bg-light p-3">Type</th>

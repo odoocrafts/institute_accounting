@@ -82,7 +82,29 @@ class InstituteAccountingTransaction(models.Model):
             if not vals.get('branch_id'):
                 vals['branch_id'] = self._default_branch_from_accountant()
             if vals.get('name', _('New')) == _('New'):
-                vals['name'] = self.env['ir.sequence'].next_by_code('institute.accounting.transaction') or _('New')
+                seq_val = self.env['ir.sequence'].next_by_code('institute.accounting.transaction')
+                if seq_val:
+                    # e.g., JBIA/0001/26-27
+                    prefix = self.env['ir.config_parameter'].sudo().get_param('institute_accounting.fee_receipt_prefix', default='JBIA')
+                    
+                    date_val = vals.get('date') or fields.Date.context_today(self)
+                    if isinstance(date_val, str):
+                        date_val = fields.Date.from_string(date_val)
+                    year = date_val.year
+                    if date_val.month < 4:
+                        fin_year = f"{str(year - 1)[-2:]}-{str(year)[-2:]}"
+                    else:
+                        fin_year = f"{str(year)[-2:]}-{str(year + 1)[-2:]}"
+                    
+                    # Remove any existing prefix letters if the sequence somehow still has INS/ACC/
+                    import re
+                    number_part = re.sub(r'[^0-9]', '', seq_val)
+                    if not number_part:
+                        number_part = seq_val
+                    
+                    vals['name'] = f"{prefix}/{number_part}/{fin_year}"
+                else:
+                    vals['name'] = _('New')
         return super(InstituteAccountingTransaction, self).create(vals_list)
 
     @api.constrains('amount')
