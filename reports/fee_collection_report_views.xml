@@ -49,7 +49,12 @@
                                     <h5 class="mb-2 text-dark"><strong>Billed To / Student Details:</strong></h5>
                                     <span style="font-size: 15px;"><strong><span t-field="doc.student_id.name"/></strong></span><br/>
                                     <strong>Batch:</strong> <span t-if="doc.batch_id" t-field="doc.batch_id.name"/><br/>
-                                    <strong>Course:</strong> <span t-field="doc.course_id.name"/><br/>
+                                    <t t-if="doc.course_variant_id">
+                                        <strong>Course:</strong> <span t-field="doc.course_variant_id.name"/><br/>
+                                    </t>
+                                    <t t-if="doc.course_id">
+                                        <strong>Course Group:</strong> <span t-field="doc.course_id.name"/><br/>
+                                    </t>
                                     <strong>Semester:</strong> <span t-if="doc.accounting_fee_line_id" t-field="doc.accounting_fee_line_id.semester_id.name"/><br/>
                                 </div>
                                 <div class="col-5 company-details text-right">
@@ -98,7 +103,13 @@
                                         <td>
                                             <strong>ADMISSION / COURSE FEES</strong><br/>
                                             <span class="text-muted" style="font-size: 11px;">
-                                                <span t-if="doc.course_id" t-field="doc.course_id.name"/> 
+                                                <t t-if="doc.course_variant_id">
+                                                    <strong t-field="doc.course_variant_id.name"/>
+                                                    <t t-if="doc.course_id"> - <span t-field="doc.course_id.name"/></t>
+                                                </t>
+                                                <t t-else="">
+                                                    <span t-if="doc.course_id" t-field="doc.course_id.name"/>
+                                                </t>
                                                 <t t-if="doc.accounting_fee_line_id"> - <span t-field="doc.accounting_fee_line_id.semester_id.name"/></t>
                                             </span>
                                         </td>

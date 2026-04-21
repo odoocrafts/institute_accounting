@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Course Group Action -->
     <record id="action_institute_accounting_course" model="ir.actions.act_window">
         <field name="name">Accounting Course Groups</field>
         <field name="res_model">institute.accounting.course</field>
@@ -8,6 +9,46 @@
         <field name="context">{}</field>
     </record>
 
+    <!-- Course Variant Action -->
+    <record id="action_institute_accounting_course_variant" model="ir.actions.act_window">
+        <field name="name">Courses</field>
+        <field name="res_model">institute.accounting.course.variant</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Course Variant Tree -->
+    <record id="view_institute_accounting_course_variant_tree" model="ir.ui.view">
+        <field name="name">institute.accounting.course.variant.tree</field>
+        <field name="model">institute.accounting.course.variant</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Course Variant Form -->
+    <record id="view_institute_accounting_course_variant_form" model="ir.ui.view">
+        <field name="name">institute.accounting.course.variant.form</field>
+        <field name="model">institute.accounting.course.variant</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Course Name (e.g. AVIATION &amp; LOGISTICS)"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Batch Tree -->
     <record id="view_institute_accounting_batch_tree" model="ir.ui.view">
         <field name="name">institute.accounting.batch.tree</field>
         <field name="model">institute.accounting.batch</field>
@@ -15,12 +56,14 @@
             <tree>
                 <field name="name"/>
                 <field name="course_id"/>
+                <field name="course_variant_id"/>
                 <field name="batch_period"/>
                 <field name="active" widget="boolean_toggle"/>
             </tree>
         </field>
     </record>
 
+    <!-- Batch Form -->
     <record id="view_institute_accounting_batch_form" model="ir.ui.view">
         <field name="name">institute.accounting.batch.form</field>
         <field name="model">institute.accounting.batch</field>
@@ -35,6 +78,7 @@
                     <group>
                         <group>
                             <field name="course_id"/>
+                            <field name="course_variant_id"/>
                             <field name="batch_period" placeholder="e.g. 2026-2029"/>
                         </group>
                         <group>
@@ -52,6 +96,7 @@
         <field name="view_mode">tree,form</field>
     </record>
 
+    <menuitem id="menu_institute_accounting_courses_variant" name="Courses" parent="menu_institute_accounting_config" action="action_institute_accounting_course_variant" sequence="5"/>
     <menuitem id="menu_institute_accounting_courses" name="Course Groups" parent="menu_institute_accounting_config" action="action_institute_accounting_course" sequence="6"/>
     <menuitem id="menu_institute_accounting_batches" name="Batches" parent="menu_institute_accounting_config" action="action_institute_accounting_batch" sequence="7"/>
 </odoo>

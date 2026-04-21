@@ -10,6 +10,10 @@ class InstituteAccountingStudent(models.Model):
     branch_id = fields.Many2one('student.branch', string='Branch', required=True, tracking=True)
     course_id = fields.Many2one('institute.accounting.course', string='Course Group')
     batch_id = fields.Many2one('institute.accounting.batch', string='Batch', domain="[('course_id', '=', course_id)]")
+    course_variant_id = fields.Many2one(
+        'institute.accounting.course.variant', string='Course',
+        compute='_compute_course_variant', store=True
+    )
     batch_period = fields.Char(related='batch_id.batch_period', string='Batch Period', store=True)
     
     student_number = fields.Char(string='Student Number')
@@ -20,6 +24,11 @@ class InstituteAccountingStudent(models.Model):
     total_fee = fields.Float(string='Total Configured Fee', compute='_compute_fees', store=True)
     total_paid = fields.Float(string='Total Paid', compute='_compute_fees', store=True)
     total_due = fields.Float(string='Total Due', compute='_compute_fees', store=True)
+
+    @api.depends('batch_id')
+    def _compute_course_variant(self):
+        for rec in self:
+            rec.course_variant_id = rec.batch_id.course_variant_id if rec.batch_id else False
 
     @api.depends('fee_line_ids.total_fee', 'fee_line_ids.paid_amount')
     def _compute_fees(self):

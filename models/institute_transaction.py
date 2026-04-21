@@ -31,6 +31,7 @@ class InstituteAccountingTransaction(models.Model):
     # Fee Collection Fields
     course_id = fields.Many2one('institute.accounting.course', string='Course Group')
     batch_id = fields.Many2one('institute.accounting.batch', string='Batch', domain="[('course_id', '=', course_id)]")
+    course_variant_id = fields.Many2one('institute.accounting.course.variant', string='Course')
     student_id = fields.Many2one('institute.accounting.student', string='Student', domain="['|', ('batch_id', '=', batch_id), ('course_id', '=', course_id)]")
     
     # We map directly to the semester fee line
@@ -46,6 +47,8 @@ class InstituteAccountingTransaction(models.Model):
     @api.onchange('batch_id')
     def _onchange_batch(self):
         self.student_id = False
+        if self.batch_id:
+            self.course_variant_id = self.batch_id.course_variant_id
     
     payment_method = fields.Selection([
         ('cash', 'Cash'),

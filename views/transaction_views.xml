@@ -60,6 +60,7 @@
                             <!-- Fee Collection Fields -->
                             <field name="course_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" options="{'no_create': True}"/>
                             <field name="batch_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="course_variant_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" options="{'no_create': True}"/>
                             <field name="student_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" options="{'no_create': True}"/>
                             <field name="accounting_fee_line_id" invisible="transaction_type != 'income'" readonly="state != 'draft'" options="{'no_create': True}"/>
                             <field name="student_due" invisible="transaction_type != 'income' or not student_id" readonly="1"/>
