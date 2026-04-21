@@ -29,7 +29,7 @@ class InstituteAccountingTransaction(models.Model):
     paid_to = fields.Char(string='Paid To')
     
     # Fee Collection Fields
-    course_id = fields.Many2one('institute.accounting.course', string='Course')
+    course_id = fields.Many2one('institute.accounting.course', string='Course Group')
     batch_id = fields.Many2one('institute.accounting.batch', string='Batch', domain="[('course_id', '=', course_id)]")
     student_id = fields.Many2one('institute.accounting.student', string='Student', domain="['|', ('batch_id', '=', batch_id), ('course_id', '=', course_id)]")
     

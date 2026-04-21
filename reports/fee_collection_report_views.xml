@@ -192,8 +192,13 @@
                                         <br/><br/>
                                     </div>
                                     <div style="border-top: 1px solid #adb5bd; padding-top: 5px; width: 100%;">
-                                        <strong style="color: #495057;" t-esc="doc.branch_id.accountant_id.name or 'Authorised Signatory'"></strong><br/>
-                                        <span class="text-muted" style="font-size: 10px;">For <span t-esc="doc.branch_id.name or 'Institute'"/></span>
+                                        <t t-if="doc.branch_id.signature_text">
+                                            <div t-out="doc.branch_id.signature_text" style="font-size: 11px; color: #495057; line-height: 1.3;"/>
+                                        </t>
+                                        <t t-else="">
+                                            <strong style="color: #495057;" t-esc="doc.branch_id.accountant_id.name or 'Authorised Signatory'"></strong><br/>
+                                            <span class="text-muted" style="font-size: 10px;">For <span t-esc="doc.branch_id.name or 'Institute'"/></span>
+                                        </t>
                                     </div>
                                 </div>
                             </div>

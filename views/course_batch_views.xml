@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="action_institute_accounting_course" model="ir.actions.act_window">
-        <field name="name">Accounting Courses</field>
+        <field name="name">Accounting Course Groups</field>
         <field name="res_model">institute.accounting.course</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[]</field>
@@ -52,6 +52,6 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <menuitem id="menu_institute_accounting_courses" name="Courses" parent="menu_institute_accounting_config" action="action_institute_accounting_course" sequence="6"/>
+    <menuitem id="menu_institute_accounting_courses" name="Course Groups" parent="menu_institute_accounting_config" action="action_institute_accounting_course" sequence="6"/>
     <menuitem id="menu_institute_accounting_batches" name="Batches" parent="menu_institute_accounting_config" action="action_institute_accounting_batch" sequence="7"/>
 </odoo>

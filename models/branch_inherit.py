@@ -9,5 +9,6 @@ class BranchInherit(models.Model):
     email = fields.Char(string='Email')
     phone = fields.Char(string='Phone')
     accountant_signature = fields.Image(string='Accountant Signature', max_width=512, max_height=512)
+    signature_text = fields.Html(string='Signature Details', sanitize=True, help="Editable text displayed under the signature image on receipts")
     round_seal = fields.Image(string='Round Seal', max_width=512, max_height=512)
     non_refundable_seal = fields.Image(string='Fees Not Refundable Seal', max_width=512, max_height=512)
