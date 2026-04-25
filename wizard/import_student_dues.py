@@ -80,15 +80,15 @@ class ImportStudentDuesWizard(models.TransientModel):
         is_two_row_header = False
         next_row = []
         if len(all_rows) > header_row_idx + 1:
-            next_row = [str(cell).upper().strip() if cell else '' for cell in all_rows[header_row_idx + 1]]
-            if any('TO BE PAID' in cell for cell in next_row):
+            next_row = [str(cell).upper().replace('\n', ' ').strip() if cell else '' for cell in all_rows[header_row_idx + 1]]
+            if any('BE PAID' in cell for cell in next_row):
                 is_two_row_header = True
 
         semester_cols = {} # dict of sem_name -> {'total_idx': idx, 'paid_idx': idx}
         if is_two_row_header:
             current_fee_head = None
             for idx in range(len(headers)):
-                h = headers[idx]
+                h = str(headers[idx]).upper().replace('\n', ' ').strip() if headers[idx] else ''
                 if h:
                     is_known = any(kw in h for kw in ['SL.NO', 'SL NO', 'NAME', 'MERIT', 'CONTACT', 'PACKAGE', 'TOTAL'])
                     if not is_known:
@@ -96,11 +96,11 @@ class ImportStudentDuesWizard(models.TransientModel):
                 
                 if current_fee_head:
                     sub_h = next_row[idx] if idx < len(next_row) else ''
-                    if 'TO BE PAID' in sub_h:
+                    if 'BE PAID' in sub_h:
                         if current_fee_head not in semester_cols:
                             semester_cols[current_fee_head] = {'total_idx': None, 'paid_idx': None}
                         semester_cols[current_fee_head]['total_idx'] = idx
-                    elif sub_h == 'PAID':
+                    elif 'PAID' in sub_h and 'BE PAID' not in sub_h:
                         if current_fee_head not in semester_cols:
                             semester_cols[current_fee_head] = {'total_idx': None, 'paid_idx': None}
                         semester_cols[current_fee_head]['paid_idx'] = idx
@@ -110,6 +110,9 @@ class ImportStudentDuesWizard(models.TransientModel):
                 if 'SEM' in header:
                     semester_cols[header] = {'total_idx': idx, 'paid_idx': None}
             data_start_idx = header_row_idx + 1
+
+        if not semester_cols:
+            raise UserError(f"Could not identify any fee columns. Headers: {headers[:15]} | Next row: {next_row[:15]}")
 
         student_obj = self.env['institute.accounting.student']
         semester_obj = self.env['institute.semester']
@@ -143,14 +146,15 @@ class ImportStudentDuesWizard(models.TransientModel):
                 def parse_amount(val):
                     if val in (None, '', '-'): return 0.0
                     try:
-                        if isinstance(val, str): val = val.replace(',', '')
+                        if isinstance(val, str): 
+                            val = val.replace(',', '').replace(' ', '').replace('\n', '')
                         return float(val)
                     except ValueError: return 0.0
 
                 fee_amount = parse_amount(total_val)
                 paid_amount = parse_amount(paid_val)
 
-                if fee_amount >= 0 or paid_amount > 0:
+                if fee_amount > 0 or paid_amount > 0:
                     fee_lines.append((0, 0, {
                         'semester_id': sem_cache[sem_name],
                         'total_fee': fee_amount,
