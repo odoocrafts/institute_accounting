@@ -52,7 +52,7 @@ class ImportStudentDuesWizard(models.TransientModel):
         # We will scan the first 10 rows to find a cell containing 'NAME'.
         header_row_idx = None
         for row_idx, row in enumerate(all_rows[:10]):
-            if any(cell and isinstance(cell, str) and 'NAME' in cell.upper() for cell in row):
+            if any(cell and isinstance(cell, str) and ('NAME' in cell.upper() or 'NAME OF THE STUDENT' in cell.upper()) for cell in row):
                 header_row_idx = row_idx
                 break
 
@@ -62,61 +62,99 @@ class ImportStudentDuesWizard(models.TransientModel):
         # Map column indexes based on header row
         headers = [str(cell).upper().strip() if cell else '' for cell in all_rows[header_row_idx]]
         
-        try:
-            name_idx = headers.index('NAME')
-            student_no_idx = headers.index('STUDENT NUMBER')
-            parent_no_idx = headers.index('PARENT NUMBER')
-        except ValueError as e:
-            raise UserError(_("Missing mandatory columns: NAME, STUDENT NUMBER, PARENT NUMBER"))
+        name_idx = -1
+        student_no_idx = -1
+        parent_no_idx = -1
+        
+        for idx, h in enumerate(headers):
+            if 'NAME' in h:
+                name_idx = idx
+            elif 'STUDENT' in h and ('CONTACT' in h or 'NUMBER' in h or 'NO' in h):
+                student_no_idx = idx
+            elif 'PARENT' in h and ('CONTACT' in h or 'NUMBER' in h or 'NO' in h):
+                parent_no_idx = idx
 
-        # Detect semester columns. They typically contain 'sem'
-        semester_cols = {}
-        for idx, header in enumerate(headers):
-            if 'SEM' in header:
-                semester_cols[idx] = header
+        if name_idx == -1:
+            raise UserError(_("Could not find a column containing 'NAME'."))
+
+        is_two_row_header = False
+        next_row = []
+        if len(all_rows) > header_row_idx + 1:
+            next_row = [str(cell).upper().strip() if cell else '' for cell in all_rows[header_row_idx + 1]]
+            if any('TO BE PAID' in cell for cell in next_row):
+                is_two_row_header = True
+
+        semester_cols = {} # dict of sem_name -> {'total_idx': idx, 'paid_idx': idx}
+        if is_two_row_header:
+            current_fee_head = None
+            for idx in range(len(headers)):
+                h = headers[idx]
+                if h:
+                    is_known = any(kw in h for kw in ['SL.NO', 'SL NO', 'NAME', 'MERIT', 'CONTACT', 'PACKAGE', 'TOTAL'])
+                    if not is_known:
+                        current_fee_head = h
+                
+                if current_fee_head:
+                    sub_h = next_row[idx] if idx < len(next_row) else ''
+                    if 'TO BE PAID' in sub_h:
+                        if current_fee_head not in semester_cols:
+                            semester_cols[current_fee_head] = {'total_idx': None, 'paid_idx': None}
+                        semester_cols[current_fee_head]['total_idx'] = idx
+                    elif sub_h == 'PAID':
+                        if current_fee_head not in semester_cols:
+                            semester_cols[current_fee_head] = {'total_idx': None, 'paid_idx': None}
+                        semester_cols[current_fee_head]['paid_idx'] = idx
+            data_start_idx = header_row_idx + 2
+        else:
+            for idx, header in enumerate(headers):
+                if 'SEM' in header:
+                    semester_cols[header] = {'total_idx': idx, 'paid_idx': None}
+            data_start_idx = header_row_idx + 1
 
         student_obj = self.env['institute.accounting.student']
         semester_obj = self.env['institute.semester']
 
         # Cache semester masters to avoid creating duplicates
         sem_cache = {}
-        for sem_name in semester_cols.values():
+        for sem_name in semester_cols.keys():
             sem_master = semester_obj.search([('name', '=ilike', sem_name)], limit=1)
             if not sem_master:
                 sem_master = semester_obj.create({'name': sem_name})
             sem_cache[sem_name] = sem_master.id
 
         created_count = 0
-        for row in all_rows[header_row_idx + 1:]:
+        for row in all_rows[data_start_idx:]:
             # Skip empty rows or "TOTAL" rows
             if len(row) <= name_idx or not row[name_idx] or 'TOTAL' in str(row[name_idx]).upper():
                 continue
 
             name = str(row[name_idx]).strip()
-            student_no = str(row[student_no_idx]).strip() if row[student_no_idx] is not None else ''
-            parent_no = str(row[parent_no_idx]).strip() if row[parent_no_idx] is not None else ''
+            student_no = str(row[student_no_idx]).strip() if student_no_idx != -1 and row[student_no_idx] is not None else ''
+            parent_no = str(row[parent_no_idx]).strip() if parent_no_idx != -1 and row[parent_no_idx] is not None else ''
 
             fee_lines = []
-            for col_idx, sem_name in semester_cols.items():
-                fee_val = row[col_idx]
+            for sem_name, cols in semester_cols.items():
+                total_idx = cols['total_idx']
+                paid_idx = cols['paid_idx']
                 
-                # If None, empty, or not a number, treat as 0
-                if fee_val in (None, '', '-'):
-                    fee_amount = 0.0
-                else:
+                total_val = row[total_idx] if total_idx is not None and total_idx < len(row) else 0.0
+                paid_val = row[paid_idx] if paid_idx is not None and paid_idx < len(row) else 0.0
+                
+                def parse_amount(val):
+                    if val in (None, '', '-'): return 0.0
                     try:
-                        # Strip commas and parse
-                        if isinstance(fee_val, str):
-                            fee_val = fee_val.replace(',', '')
-                        fee_amount = float(fee_val)
-                    except ValueError:
-                        fee_amount = 0.0
+                        if isinstance(val, str): val = val.replace(',', '')
+                        return float(val)
+                    except ValueError: return 0.0
 
-                if fee_amount >= 0:
+                fee_amount = parse_amount(total_val)
+                paid_amount = parse_amount(paid_val)
+
+                if fee_amount >= 0 or paid_amount > 0:
                     fee_lines.append((0, 0, {
                         'semester_id': sem_cache[sem_name],
                         'total_fee': fee_amount,
-                        'paid_amount': 0.0
+                        'paid_amount': paid_amount
                     }))
 
             # Find or Create Student
