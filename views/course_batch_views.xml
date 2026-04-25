@@ -69,7 +69,15 @@
         <field name="model">institute.accounting.batch</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button name="action_import_students" string="Import Students &amp; Dues" type="object" class="oe_highlight"/>
+                </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_students" type="object" class="oe_stat_button" icon="fa-users">
+                            <field name="student_count" widget="statinfo" string="Students"/>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <h1>
                             <field name="name" placeholder="Batch Name"/>
