@@ -48,71 +48,79 @@ class ImportStudentDuesWizard(models.TransientModel):
         if not all_rows:
             raise UserError(_("The uploaded file is empty."))
 
-        # We need to find the header row.
-        # We will scan the first 10 rows to find a cell containing 'NAME'.
-        header_row_idx = None
+        # 1. Find the row containing 'NAME'
+        name_row_idx = None
         for row_idx, row in enumerate(all_rows[:10]):
             if any(cell and isinstance(cell, str) and ('NAME' in cell.upper() or 'NAME OF THE STUDENT' in cell.upper()) for cell in row):
-                header_row_idx = row_idx
+                name_row_idx = row_idx
                 break
-
-        if header_row_idx is None:
-            raise UserError(_("Could not find a header row containing 'NAME'. Please ensure the standard template is used."))
-
-        # Map column indexes based on header row
-        headers = [str(cell).upper().strip() if cell else '' for cell in all_rows[header_row_idx]]
         
+        if name_row_idx is None:
+            raise UserError(_("Could not find a header row containing 'NAME'."))
+
+        # 2. Find column indices for standard fields
         name_idx = -1
         student_no_idx = -1
         parent_no_idx = -1
         
-        for idx, h in enumerate(headers):
-            if 'NAME' in h:
-                name_idx = idx
-            elif 'STUDENT' in h and ('CONTACT' in h or 'NUMBER' in h or 'NO' in h):
-                student_no_idx = idx
-            elif 'PARENT' in h and ('CONTACT' in h or 'NUMBER' in h or 'NO' in h):
-                parent_no_idx = idx
+        for row_to_search in range(name_row_idx, min(name_row_idx + 3, len(all_rows))):
+            row_headers = [str(cell).upper().replace('\n', ' ').strip() if cell else '' for cell in all_rows[row_to_search]]
+            for idx, h in enumerate(row_headers):
+                if name_idx == -1 and 'NAME' in h: name_idx = idx
+                if student_no_idx == -1 and 'STUDENT' in h and ('CONTACT' in h or 'NUMBER' in h or 'NO' in h): student_no_idx = idx
+                if parent_no_idx == -1 and 'PARENT' in h and ('CONTACT' in h or 'NUMBER' in h or 'NO' in h): parent_no_idx = idx
 
         if name_idx == -1:
             raise UserError(_("Could not find a column containing 'NAME'."))
 
-        is_two_row_header = False
-        next_row = []
-        if len(all_rows) > header_row_idx + 1:
-            next_row = [str(cell).upper().replace('\n', ' ').strip() if cell else '' for cell in all_rows[header_row_idx + 1]]
-            if any('BE PAID' in cell for cell in next_row):
-                is_two_row_header = True
+        # 3. Detect fee sub-headers ('TO BE PAID', 'PAID')
+        sub_header_row_idx = None
+        for row_idx in range(name_row_idx, min(len(all_rows), name_row_idx + 4)):
+            row = [str(cell).upper().replace('\n', ' ').strip() if cell else '' for cell in all_rows[row_idx]]
+            if any(('BE PAID' in cell or ('PAID' in cell and 'TOTAL' not in cell)) for cell in row):
+                sub_header_row_idx = row_idx
+                break
 
         semester_cols = {} # dict of sem_name -> {'total_idx': idx, 'paid_idx': idx}
-        if is_two_row_header:
+        
+        if sub_header_row_idx is not None:
+            # New Template: Map fee heads to sub headers
+            fee_head_row_idx = sub_header_row_idx - 1
+            if fee_head_row_idx < 0: fee_head_row_idx = 0
+            
+            fee_head_row = [str(cell).upper().replace('\n', ' ').strip() if cell else '' for cell in all_rows[fee_head_row_idx]]
+            sub_header_row = [str(cell).upper().replace('\n', ' ').strip() if cell else '' for cell in all_rows[sub_header_row_idx]]
+            
             current_fee_head = None
-            for idx in range(len(headers)):
-                h = str(headers[idx]).upper().replace('\n', ' ').strip() if headers[idx] else ''
+            for idx in range(len(fee_head_row)):
+                h = fee_head_row[idx]
                 if h:
-                    is_known = any(kw in h for kw in ['SL.NO', 'SL NO', 'NAME', 'MERIT', 'CONTACT', 'PACKAGE', 'TOTAL'])
+                    is_known = any(kw in h for kw in ['SL.NO', 'SL NO', 'NAME', 'MERIT', 'CONTACT', 'PACKAGE', 'TOTAL', 'BALANCE', 'JBIA'])
                     if not is_known:
                         current_fee_head = h
                 
                 if current_fee_head:
-                    sub_h = next_row[idx] if idx < len(next_row) else ''
+                    sub_h = sub_header_row[idx] if idx < len(sub_header_row) else ''
                     if 'BE PAID' in sub_h:
                         if current_fee_head not in semester_cols:
                             semester_cols[current_fee_head] = {'total_idx': None, 'paid_idx': None}
                         semester_cols[current_fee_head]['total_idx'] = idx
-                    elif 'PAID' in sub_h and 'BE PAID' not in sub_h:
+                    elif 'PAID' in sub_h and 'BE PAID' not in sub_h and 'TOTAL' not in sub_h:
                         if current_fee_head not in semester_cols:
                             semester_cols[current_fee_head] = {'total_idx': None, 'paid_idx': None}
                         semester_cols[current_fee_head]['paid_idx'] = idx
-            data_start_idx = header_row_idx + 2
+            data_start_idx = sub_header_row_idx + 1
         else:
-            for idx, header in enumerate(headers):
-                if 'SEM' in header:
-                    semester_cols[header] = {'total_idx': idx, 'paid_idx': None}
-            data_start_idx = header_row_idx + 1
+            # Old Template: Single row header with 'SEM'
+            row_headers = [str(cell).upper().replace('\n', ' ').strip() if cell else '' for cell in all_rows[name_row_idx]]
+            for idx, h in enumerate(row_headers):
+                if 'SEM' in h:
+                    semester_cols[h] = {'total_idx': idx, 'paid_idx': None}
+            data_start_idx = name_row_idx + 1
 
         if not semester_cols:
-            raise UserError(f"Could not identify any fee columns. Headers: {headers[:15]} | Next row: {next_row[:15]}")
+            debug_info = [str(cell).upper().replace('\n', ' ').strip() if cell else '' for cell in all_rows[name_row_idx:name_row_idx+3]]
+            raise UserError(_(f"Could not identify any fee columns. Debug info rows: {debug_info}"))
 
         student_obj = self.env['institute.accounting.student']
         semester_obj = self.env['institute.semester']
