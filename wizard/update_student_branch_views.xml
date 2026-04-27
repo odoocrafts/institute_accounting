@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_update_student_branch_form" model="ir.ui.view">
+        <field name="name">institute.accounting.update.student.branch.form</field>
+        <field name="model">institute.accounting.update.student.branch</field>
+        <field name="arch" type="xml">
+            <form string="Change Branch">
+                <group>
+                    <field name="branch_id"/>
+                </group>
+                <footer>
+                    <button string="Update" type="object" name="action_update_branch" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_update_student_branch" model="ir.actions.act_window">
+        <field name="name">Change Branch</field>
+        <field name="res_model">institute.accounting.update.student.branch</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="institute_accounting.model_institute_accounting_student"/>
+        <field name="binding_view_types">list</field>
+    </record>
+</odoo>

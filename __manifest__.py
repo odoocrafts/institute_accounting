@@ -29,6 +29,7 @@
         'views/accounting_student_views.xml',
         'wizard/import_student_dues_views.xml',
         'wizard/transaction_refund_wizard_views.xml',
+        'wizard/update_student_branch_views.xml',
         'reports/transaction_report_views.xml',
         'reports/fee_collection_report_views.xml',
         'reports/transaction_voucher_views.xml',
