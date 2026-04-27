@@ -62,11 +62,16 @@ class InstituteDashboard(models.AbstractModel):
                 b_trans = transactions.filtered(lambda t: t.branch_id.id == b.id and t.date and t.date >= first_day_month)
                 inc = sum(b_trans.filtered(lambda t: t.transaction_type == 'income').mapped('amount'))
                 exp = sum(b_trans.filtered(lambda t: t.transaction_type == 'expense').mapped('amount'))
+                
+                b_students = self.env['institute.accounting.student'].search([('branch_id', '=', b.id)])
+                b_fee_due = sum(b_students.mapped('total_due'))
+
                 branch_metrics.append({
                     'name': b.name,
                     'income': inc,
                     'expense': exp,
-                    'profit': inc - exp
+                    'profit': inc - exp,
+                    'fee_due': b_fee_due
                 })
         
         return {
