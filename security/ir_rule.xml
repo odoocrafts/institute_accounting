@@ -40,5 +40,37 @@
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="groups" eval="[(4, ref('institute_accounting.group_institute_accounting_manager'))]"/>
         </record>
+
+        <!-- Branch Accountant Student -->
+        <record id="rule_institute_accounting_student_branch" model="ir.rule">
+            <field name="name">Branch Accountant Student</field>
+            <field name="model_id" ref="model_institute_accounting_student"/>
+            <field name="domain_force">['|', ('branch_id.accountant_id', '=', user.id), ('branch_id', 'in', user.branch_ids.ids)]</field>
+            <field name="groups" eval="[(4, ref('institute_accounting.group_institute_accounting_branch'))]"/>
+        </record>
+
+        <!-- Finance Manager Student -->
+        <record id="rule_institute_accounting_student_manager" model="ir.rule">
+            <field name="name">Finance Manager Student All</field>
+            <field name="model_id" ref="model_institute_accounting_student"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('institute_accounting.group_institute_accounting_manager'))]"/>
+        </record>
+
+        <!-- Branch Accountant Student Fee -->
+        <record id="rule_institute_accounting_student_fee_branch" model="ir.rule">
+            <field name="name">Branch Accountant Student Fee</field>
+            <field name="model_id" ref="model_institute_accounting_student_fee"/>
+            <field name="domain_force">['|', ('student_id.branch_id.accountant_id', '=', user.id), ('student_id.branch_id', 'in', user.branch_ids.ids)]</field>
+            <field name="groups" eval="[(4, ref('institute_accounting.group_institute_accounting_branch'))]"/>
+        </record>
+
+        <!-- Finance Manager Student Fee -->
+        <record id="rule_institute_accounting_student_fee_manager" model="ir.rule">
+            <field name="name">Finance Manager Student Fee All</field>
+            <field name="model_id" ref="model_institute_accounting_student_fee"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('institute_accounting.group_institute_accounting_manager'))]"/>
+        </record>
     </data>
 </odoo>
