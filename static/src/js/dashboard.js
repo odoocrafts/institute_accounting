@@ -3,7 +3,7 @@
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { Component, useState, onWillStart, onMounted, onPatched, useRef } from "@odoo/owl";
-import { loadJS } from "@web/core/network/download";
+import { loadJS } from "@web/core/assets";
 
 export class AccountingDashboard extends Component {
     setup() {
