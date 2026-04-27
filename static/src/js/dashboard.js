@@ -10,7 +10,9 @@ export class AccountingDashboard extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.branchDueChartRef = useRef("branchDueChart");
+        this.branchIncomeChartRef = useRef("branchIncomeChart");
         this.chartInstance = null;
+        this.incomeChartInstance = null;
         this.state = useState({
             data: {
                 top_expenses: [],
@@ -62,38 +64,79 @@ export class AccountingDashboard extends Component {
     }
 
     renderCharts() {
-        if (!this.state.data.is_manager || !this.branchDueChartRef.el) return;
+        if (!this.state.data.is_manager) return;
         
         if (this.chartInstance) {
             this.chartInstance.destroy();
         }
+        if (this.incomeChartInstance) {
+            this.incomeChartInstance.destroy();
+        }
 
-        const ctx = this.branchDueChartRef.el.getContext("2d");
         const labels = this.state.data.branch_metrics.map(b => b.name);
-        const data = this.state.data.branch_metrics.map(b => b.fee_due);
 
-        this.chartInstance = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: [
-                        '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
-                        '#858796', '#5a5c69', '#2e59d9', '#17a673', '#2c9faf'
-                    ],
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
+        // Chart 1: Fee Due Pie Chart
+        if (this.branchDueChartRef.el) {
+            const ctx = this.branchDueChartRef.el.getContext("2d");
+            const data = this.state.data.branch_metrics.map(b => b.fee_due);
+
+            this.chartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+                            '#858796', '#5a5c69', '#2e59d9', '#17a673', '#2c9faf'
+                        ],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
                     }
                 }
-            }
-        });
+            });
+        }
+
+        // Chart 2: Income/Expense Bar Chart
+        if (this.branchIncomeChartRef.el) {
+            const ctx2 = this.branchIncomeChartRef.el.getContext("2d");
+            const incomeData = this.state.data.branch_metrics.map(b => b.income);
+            const expenseData = this.state.data.branch_metrics.map(b => b.expense);
+
+            this.incomeChartInstance = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: incomeData,
+                            backgroundColor: '#1cc88a',
+                        },
+                        {
+                            label: 'Expense',
+                            data: expenseData,
+                            backgroundColor: '#e74a3b',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
     }
 
     formatNumber(number) {

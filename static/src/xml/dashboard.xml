@@ -128,10 +128,12 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-4">
-                                    <div class="card border-0 shadow-sm rounded-4 h-100 bg-light d-flex align-items-center justify-content-center">
-                                        <div class="text-center text-muted">
-                                            <i class="fa fa-pie-chart fa-3x mb-3 opacity-25"></i>
-                                            <p class="mb-0">Select a slice to view details</p>
+                                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                                        <div class="card-body">
+                                            <h5 class="fw-bold text-dark mb-3">Branch Wise Income &amp; Expense</h5>
+                                            <div style="position: relative; height:300px; width:100%">
+                                                <canvas t-ref="branchIncomeChart"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
