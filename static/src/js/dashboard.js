@@ -36,6 +36,10 @@ export class AccountingDashboard extends Component {
             ]);
         });
 
+        onMounted(() => {
+            this.renderCharts();
+        });
+
         onPatched(() => {
             this.renderCharts();
         });
