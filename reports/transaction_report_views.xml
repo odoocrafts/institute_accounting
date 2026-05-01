@@ -50,5 +50,5 @@
         <field name="context">{'search_default_group_by_branch': 1}</field>
     </record>
 
-    <menuitem id="menu_institute_action_report" name="P&amp;L Analysis" parent="menu_institute_accounting_reports" action="action_institute_accounting_report" sequence="10"/>
+    <menuitem id="menu_institute_action_report" name="P&amp;L Analysis" parent="menu_institute_accounting_reports" action="action_institute_pnl_report_wizard" sequence="10"/>
 </odoo>

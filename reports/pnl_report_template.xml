@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_pnl" model="ir.actions.report">
+        <field name="name">Profit &amp; Loss Report</field>
+        <field name="model">institute.pnl.report.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">institute_accounting.report_pnl_template</field>
+        <field name="report_file">institute_accounting.report_pnl_template</field>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_pnl_template">
+        <t t-call="web.html_container">
+            <t t-call="web.internal_layout">
+                <div class="page">
+                    <div class="oe_structure"/>
+                    
+                    <!-- Header -->
+                    <div class="row mt-4 mb-4">
+                        <div class="col-12 text-center">
+                            <h2 class="fw-bold">Profit &amp; Loss Statement</h2>
+                            <h4 class="text-muted"><t t-esc="branch_name"/></h4>
+                            <div class="mt-2 text-muted">
+                                <t t-if="date_from and date_to">
+                                    <span>From: <t t-esc="date_from" t-options='{"widget": "date"}'/> To: <t t-esc="date_to" t-options='{"widget": "date"}'/></span>
+                                </t>
+                                <t t-elif="date_from">
+                                    <span>From: <t t-esc="date_from" t-options='{"widget": "date"}'/></span>
+                                </t>
+                                <t t-elif="date_to">
+                                    <span>To: <t t-esc="date_to" t-options='{"widget": "date"}'/></span>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- P&L Table -->
+                    <table class="table table-sm table-borderless o_main_table mt-4" style="font-size: 1.1em;">
+                        <thead>
+                            <tr class="border-bottom border-dark text-uppercase">
+                                <th class="text-start">Description</th>
+                                <th class="text-end">Amount (<t t-esc="company.currency_id.symbol"/>)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Income Section -->
+                            <tr class="bg-light mt-2">
+                                <td colspan="2" class="fw-bold text-success fs-5 pt-3 pb-2">Income</td>
+                            </tr>
+                            <t t-foreach="income_list" t-as="income">
+                                <tr>
+                                    <td class="ps-4"><t t-esc="income['category']"/></td>
+                                    <td class="text-end"><t t-esc="income['amount']" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/></td>
+                                </tr>
+                            </t>
+                            <t t-if="not income_list">
+                                <tr>
+                                    <td class="ps-4 text-muted fst-italic">No income recorded for this period.</td>
+                                    <td class="text-end text-muted">0.00</td>
+                                </tr>
+                            </t>
+                            <tr class="border-top border-dark">
+                                <td class="fw-bold fs-6 text-end pe-4">Total Income</td>
+                                <td class="fw-bold fs-6 text-end text-success"><t t-esc="total_income" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/></td>
+                            </tr>
+
+                            <!-- Expense Section -->
+                            <tr class="bg-light mt-4">
+                                <td colspan="2" class="fw-bold text-danger fs-5 pt-4 pb-2">Expenses</td>
+                            </tr>
+                            <t t-foreach="expense_list" t-as="expense">
+                                <tr>
+                                    <td class="ps-4"><t t-esc="expense['category']"/></td>
+                                    <td class="text-end"><t t-esc="expense['amount']" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/></td>
+                                </tr>
+                            </t>
+                            <t t-if="not expense_list">
+                                <tr>
+                                    <td class="ps-4 text-muted fst-italic">No expenses recorded for this period.</td>
+                                    <td class="text-end text-muted">0.00</td>
+                                </tr>
+                            </t>
+                            <tr class="border-top border-dark">
+                                <td class="fw-bold fs-6 text-end pe-4">Total Expenses</td>
+                                <td class="fw-bold fs-6 text-end text-danger"><t t-esc="total_expense" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/></td>
+                            </tr>
+
+                            <!-- Net Profit -->
+                            <tr class="mt-4" style="border-top: 2px solid black;">
+                                <td class="fw-bold fs-4 pt-3 pb-3 text-uppercase">Net Profit / (Loss)</td>
+                                <td t-attf-class="fw-bold fs-4 pt-3 pb-3 text-end {{ 'text-success' if net_profit &gt;= 0 else 'text-danger' }}">
+                                    <t t-esc="net_profit" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="oe_structure"/>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>
