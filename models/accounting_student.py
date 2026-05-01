@@ -25,6 +25,22 @@ class InstituteAccountingStudent(models.Model):
     total_paid = fields.Float(string='Total Paid', compute='_compute_fees', store=True)
     total_due = fields.Float(string='Total Due', compute='_compute_fees', store=True)
 
+    active = fields.Boolean(default=True)
+    dropout_reason = fields.Text(string='Dropout Reason', tracking=True)
+
+    def action_mark_dropout(self):
+        self.ensure_one()
+        return {
+            'name': _('Mark Dropout'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'institute.accounting.student.dropout.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_student_id': self.id,
+            }
+        }
+
     @api.depends('batch_id')
     def _compute_course_variant(self):
         for rec in self:

@@ -53,12 +53,20 @@
         <field name="model">institute.accounting.student</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button name="action_mark_dropout" type="object" string="Mark Dropout" class="btn-danger" invisible="not active"/>
+                </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Archived / Dropped Out" bg_color="bg-danger" invisible="active"/>
                     <div class="oe_title">
                         <h1>
                             <field name="name" placeholder="Student Name"/>
                         </h1>
                     </div>
+                    <group>
+                        <field name="active" invisible="1"/>
+                        <field name="dropout_reason" invisible="active" readonly="1"/>
+                    </group>
                     <group>
                         <group>
                             <field name="branch_id"/>

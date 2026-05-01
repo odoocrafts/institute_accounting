@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_institute_accounting_student_dropout_wizard_form" model="ir.ui.view">
+        <field name="name">institute.accounting.student.dropout.wizard.form</field>
+        <field name="model">institute.accounting.student.dropout.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Mark Student as Dropout">
+                <group>
+                    <field name="student_id" invisible="1"/>
+                    <field name="reason" placeholder="e.g., Financial issues, relocated, etc."/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Confirm Dropout" type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
