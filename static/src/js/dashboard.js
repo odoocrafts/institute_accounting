@@ -64,7 +64,7 @@ export class AccountingDashboard extends Component {
     }
 
     renderCharts() {
-        if (!this.state.data.is_manager) return;
+        if (!this.state.data.branch_metrics || this.state.data.branch_metrics.length === 0) return;
         
         if (this.chartInstance) {
             this.chartInstance.destroy();
