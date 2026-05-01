@@ -77,7 +77,7 @@ class InstituteDashboard(models.AbstractModel):
         # 6. Course Metrics (Branch Accountant only)
         course_metrics = []
         if not is_manager:
-            courses = self.env['institute.course'].sudo().search([])
+            courses = self.env['institute.accounting.course'].sudo().search([])
             for c in courses:
                 c_students = students.filtered(lambda s: s.course_id.id == c.id)
                 c_fee_due = sum(c_students.mapped('total_due'))
