@@ -64,8 +64,6 @@ export class AccountingDashboard extends Component {
     }
 
     renderCharts() {
-        if (!this.state.data.branch_metrics || this.state.data.branch_metrics.length === 0) return;
-        
         if (this.chartInstance) {
             this.chartInstance.destroy();
         }
@@ -73,12 +71,23 @@ export class AccountingDashboard extends Component {
             this.incomeChartInstance.destroy();
         }
 
-        const labels = this.state.data.branch_metrics.map(b => b.name);
+        const isManager = this.state.data.is_manager;
 
         // Chart 1: Fee Due Pie Chart
         if (this.branchDueChartRef.el) {
             const ctx = this.branchDueChartRef.el.getContext("2d");
-            const data = this.state.data.branch_metrics.map(b => b.fee_due);
+            let labels = [];
+            let data = [];
+
+            if (isManager) {
+                if (!this.state.data.branch_metrics || this.state.data.branch_metrics.length === 0) return;
+                labels = this.state.data.branch_metrics.map(b => b.name);
+                data = this.state.data.branch_metrics.map(b => b.fee_due);
+            } else {
+                if (!this.state.data.course_metrics || this.state.data.course_metrics.length === 0) return;
+                labels = this.state.data.course_metrics.map(c => c.name);
+                data = this.state.data.course_metrics.map(c => c.fee_due);
+            }
 
             this.chartInstance = new Chart(ctx, {
                 type: 'pie',
@@ -105,8 +114,19 @@ export class AccountingDashboard extends Component {
         // Chart 2: Income/Expense Bar Chart
         if (this.branchIncomeChartRef.el) {
             const ctx2 = this.branchIncomeChartRef.el.getContext("2d");
-            const incomeData = this.state.data.branch_metrics.map(b => b.income);
-            const expenseData = this.state.data.branch_metrics.map(b => b.expense);
+            let labels = [];
+            let incomeData = [];
+            let expenseData = [];
+
+            if (isManager) {
+                labels = this.state.data.branch_metrics.map(b => b.name);
+                incomeData = this.state.data.branch_metrics.map(b => b.income);
+                expenseData = this.state.data.branch_metrics.map(b => b.expense);
+            } else {
+                labels = ['This Month'];
+                incomeData = [this.state.data.income_month];
+                expenseData = [this.state.data.expense_month];
+            }
 
             this.incomeChartInstance = new Chart(ctx2, {
                 type: 'bar',

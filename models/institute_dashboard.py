@@ -54,34 +54,38 @@ class InstituteDashboard(models.AbstractModel):
             
         top_expenses = [{'category': k, 'amount': v} for k, v in sorted(expense_dict.items(), key=lambda item: item[1], reverse=True)[:5]]
 
-        # 5. Branch Metrics
+        # 5. Branch Metrics (Manager only)
         branch_metrics = []
-        
         if is_manager:
-            branches_to_show = self.env['student.branch'].sudo().search([])
-        else:
-            if hasattr(self, 'branch') and 'branch' in locals() and branch:
-                branches_to_show = branch
-            elif hasattr(self.env.user, 'branch_ids') and self.env.user.branch_ids:
-                branches_to_show = self.env['student.branch'].sudo().search([('id', 'in', self.env.user.branch_ids.ids)])
-            else:
-                branches_to_show = self.env['student.branch'].sudo().browse()
+            branches = self.env['student.branch'].sudo().search([])
+            for b in branches:
+                b_trans = transactions.filtered(lambda t: t.branch_id.id == b.id and t.date and t.date >= first_day_month)
+                inc = sum(b_trans.filtered(lambda t: t.transaction_type == 'income').mapped('amount'))
+                exp = sum(b_trans.filtered(lambda t: t.transaction_type == 'expense').mapped('amount'))
+                
+                b_students = self.env['institute.accounting.student'].search([('branch_id', '=', b.id)])
+                b_fee_due = sum(b_students.mapped('total_due'))
 
-        for b in branches_to_show:
-            b_trans = transactions.filtered(lambda t: t.branch_id.id == b.id and t.date and t.date >= first_day_month)
-            inc = sum(b_trans.filtered(lambda t: t.transaction_type == 'income').mapped('amount'))
-            exp = sum(b_trans.filtered(lambda t: t.transaction_type == 'expense').mapped('amount'))
-            
-            b_students = self.env['institute.accounting.student'].search([('branch_id', '=', b.id)])
-            b_fee_due = sum(b_students.mapped('total_due'))
+                branch_metrics.append({
+                    'name': b.name,
+                    'income': inc,
+                    'expense': exp,
+                    'profit': inc - exp,
+                    'fee_due': b_fee_due
+                })
 
-            branch_metrics.append({
-                'name': b.name,
-                'income': inc,
-                'expense': exp,
-                'profit': inc - exp,
-                'fee_due': b_fee_due
-            })
+        # 6. Course Metrics (Branch Accountant only)
+        course_metrics = []
+        if not is_manager:
+            courses = self.env['institute.course'].sudo().search([])
+            for c in courses:
+                c_students = students.filtered(lambda s: s.course_id.id == c.id)
+                c_fee_due = sum(c_students.mapped('total_due'))
+                if c_fee_due > 0:
+                    course_metrics.append({
+                        'name': c.name,
+                        'fee_due': c_fee_due
+                    })
         
         return {
             'is_manager': is_manager,
@@ -94,5 +98,6 @@ class InstituteDashboard(models.AbstractModel):
             'expense_today': expense_today,
             'top_expenses': top_expenses,
             'branch_metrics': branch_metrics,
+            'course_metrics': course_metrics,
             'currency_symbol': self.env.company.currency_id.symbol
         }

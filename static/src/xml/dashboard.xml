@@ -113,23 +113,30 @@
                             </div>
                         </div>
 
-                        <!-- Branch Specific Section -->
+                        <!-- Charts Section -->
                         <div class="row mb-4">
-                            <!-- Pie Chart for Branch Wise Due -->
+                            <!-- Pie Chart -->
                             <div class="col-md-6 mb-4">
                                 <div class="card border-0 shadow-sm rounded-4 h-100">
                                     <div class="card-body">
-                                        <h5 class="fw-bold text-dark mb-3">Branch Wise Fee Due</h5>
+                                        <h5 class="fw-bold text-dark mb-3">
+                                            <t t-if="state.data.is_manager">Branch Wise Fee Due</t>
+                                            <t t-else="">Course Wise Fee Due</t>
+                                        </h5>
                                         <div style="position: relative; height:300px; width:100%">
                                             <canvas t-ref="branchDueChart"></canvas>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <!-- Bar Chart -->
                             <div class="col-md-6 mb-4">
                                 <div class="card border-0 shadow-sm rounded-4 h-100">
                                     <div class="card-body">
-                                        <h5 class="fw-bold text-dark mb-3">Branch Wise Income &amp; Expense</h5>
+                                        <h5 class="fw-bold text-dark mb-3">
+                                            <t t-if="state.data.is_manager">Branch Wise Income &amp; Expense</t>
+                                            <t t-else="">Income vs Expense</t>
+                                        </h5>
                                         <div style="position: relative; height:300px; width:100%">
                                             <canvas t-ref="branchIncomeChart"></canvas>
                                         </div>
@@ -137,38 +144,42 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <h4 class="fw-bold text-dark mb-3 mt-4">Branch Performance (This Month)</h4>
-                            </div>
-                            <t t-foreach="state.data.branch_metrics" t-as="bm" t-key="bm.name">
-                                <div class="col-md-4 mb-4">
-                                    <div class="card border-0 shadow-sm rounded-4 h-100">
-                                        <div class="card-body">
-                                            <h5 class="fw-bold text-dark mb-3 border-bottom pb-2"><t t-esc="bm.name"/></h5>
-                                            <div class="d-flex justify-content-between mb-2">
-                                                <span class="text-muted">Total Due:</span>
-                                                <span class="text-warning fw-bold"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.fee_due)"/></span>
-                                            </div>
-                                            <div class="d-flex justify-content-between mb-2">
-                                                <span class="text-muted">Income:</span>
-                                                <span class="text-success fw-bold"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.income)"/></span>
-                                            </div>
-                                            <div class="d-flex justify-content-between mb-2">
-                                                <span class="text-muted">Expense:</span>
-                                                <span class="text-danger fw-bold"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.expense)"/></span>
-                                            </div>
-                                            <div class="d-flex justify-content-between mt-3 pt-2 border-top">
-                                                <span class="fw-bold">Pnl/Loss:</span>
-                                                <span t-attf-class="fw-bold {{ bm.profit >= 0 ? 'text-success' : 'text-danger' }}">
-                                                    <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.profit)"/>
-                                                </span>
+                        
+                        <!-- Manager Specific Section: Branch Performance -->
+                        <t t-if="state.data.is_manager">
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h4 class="fw-bold text-dark mb-3 mt-4">Branch Performance (This Month)</h4>
+                                </div>
+                                <t t-foreach="state.data.branch_metrics" t-as="bm" t-key="bm.name">
+                                    <div class="col-md-4 mb-4">
+                                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                                            <div class="card-body">
+                                                <h5 class="fw-bold text-dark mb-3 border-bottom pb-2"><t t-esc="bm.name"/></h5>
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="text-muted">Total Due:</span>
+                                                    <span class="text-warning fw-bold"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.fee_due)"/></span>
+                                                </div>
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="text-muted">Income:</span>
+                                                    <span class="text-success fw-bold"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.income)"/></span>
+                                                </div>
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="text-muted">Expense:</span>
+                                                    <span class="text-danger fw-bold"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.expense)"/></span>
+                                                </div>
+                                                <div class="d-flex justify-content-between mt-3 pt-2 border-top">
+                                                    <span class="fw-bold">Pnl/Loss:</span>
+                                                    <span t-attf-class="fw-bold {{ bm.profit >= 0 ? 'text-success' : 'text-danger' }}">
+                                                        <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.profit)"/>
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </t>
-                        </div>
+                                </t>
+                            </div>
+                        </t>
                     </t>
                 </div>
             </div>
