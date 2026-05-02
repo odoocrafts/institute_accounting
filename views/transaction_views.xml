@@ -47,8 +47,9 @@
                     </div>
                     <group>
                         <group>
+                            <field name="is_manager" invisible="1"/>
                             <field name="transaction_type" readonly="state != 'draft'"/>
-                            <field name="branch_id" readonly="1" force_save="1"/>
+                            <field name="branch_id" readonly="not is_manager or state != 'draft'" force_save="1"/>
                             <field name="date" readonly="state != 'draft'"/>
                             <field name="amount" readonly="state != 'draft'"/>
                         </group>
