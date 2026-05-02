@@ -15,11 +15,16 @@ class InstituteAccountingTransaction(models.Model):
             return self.env.user.branch_ids[0].id
         return False
 
-    is_manager = fields.Boolean(compute='_compute_is_manager')
+    is_manager = fields.Boolean(
+        compute='_compute_is_manager',
+        default=lambda self: self.env.user.has_group('institute_accounting.group_institute_accounting_manager')
+    )
 
+    @api.depends_context('uid')
     def _compute_is_manager(self):
+        is_mgr = self.env.user.has_group('institute_accounting.group_institute_accounting_manager')
         for rec in self:
-            rec.is_manager = self.env.user.has_group('institute_accounting.group_institute_accounting_manager')
+            rec.is_manager = is_mgr
 
     name = fields.Char(string='Reference', required=True, copy=False, readonly=True, default=lambda self: _('New'))
     branch_id = fields.Many2one('student.branch', string='Branch', required=True, default=_default_branch_from_accountant)
