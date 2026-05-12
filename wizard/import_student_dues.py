@@ -111,16 +111,30 @@ class ImportStudentDuesWizard(models.TransientModel):
                         semester_cols[current_fee_head]['paid_idx'] = idx
             data_start_idx = sub_header_row_idx + 1
         else:
-            # Old Template: Single row header with 'SEM'
+            # Simple Template: Single row header
             row_headers = [str(cell).upper().replace('\n', ' ').strip() if cell else '' for cell in all_rows[name_row_idx]]
+            
+            # Words to strictly ignore if they exactly match or if they are basic index columns
+            ignore_exact = ['COURSE', 'BATCH', 'BRANCH', 'TOTAL', 'BALANCE', 'SL.NO', 'SL NO', 'SL', 'NO.', 'NO']
+            
             for idx, h in enumerate(row_headers):
-                if 'SEM' in h:
-                    semester_cols[h] = {'total_idx': idx, 'paid_idx': None}
+                if h:
+                    # Skip if it is a known system index/column
+                    if h in ignore_exact:
+                        continue
+                    # Skip if it was already identified as name, student number, or parent number
+                    if idx in (name_idx, student_no_idx, parent_no_idx):
+                        continue
+                        
+                    # If it passed all filters, it is a fee column!
+                    original_h = str(all_rows[name_row_idx][idx]).strip()
+                    semester_cols[original_h] = {'total_idx': idx, 'paid_idx': None}
+                    
             data_start_idx = name_row_idx + 1
 
         if not semester_cols:
-            debug_info = [str(cell).upper().replace('\n', ' ').strip() if cell else '' for cell in all_rows[name_row_idx:name_row_idx+3]]
-            raise UserError(_(f"Could not identify any fee columns. Debug info rows: {debug_info}"))
+            debug_info = [str(cell).strip() if cell else '' for cell in all_rows[name_row_idx]]
+            raise UserError(_(f"Could not identify any fee columns in the header row. Make sure fee columns are present and not named COURSE, TOTAL, etc. Header found: {debug_info}"))
 
         student_obj = self.env['institute.accounting.student']
         semester_obj = self.env['institute.semester']
