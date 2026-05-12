@@ -15,7 +15,7 @@ class ImportStudentDuesWizard(models.TransientModel):
 
     branch_id = fields.Many2one('student.branch', string='Branch', required=True)
     course_id = fields.Many2one('institute.accounting.course', string='Course', required=True)
-    batch_id = fields.Many2one('institute.accounting.batch', string='Batch', required=True, domain="[('course_id', '=', course_id)]")
+    batch_id = fields.Many2one('institute.accounting.batch', string='Batch', required=True, domain="[('course_ids', 'in', course_id)]")
     
     file = fields.Binary('Excel File', required=True)
     file_name = fields.Char('File Name')

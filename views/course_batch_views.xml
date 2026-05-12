@@ -55,7 +55,7 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
-                <field name="course_id"/>
+                <field name="course_ids" widget="many2many_tags"/>
                 <field name="course_variant_id"/>
                 <field name="batch_period"/>
                 <field name="active" widget="boolean_toggle"/>
@@ -85,7 +85,7 @@
                     </div>
                     <group>
                         <group>
-                            <field name="course_id"/>
+                            <field name="course_ids" widget="many2many_tags"/>
                             <field name="course_variant_id"/>
                             <field name="batch_period" placeholder="e.g. 2026-2029"/>
                         </group>
