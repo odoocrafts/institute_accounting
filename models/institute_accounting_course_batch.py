@@ -69,6 +69,8 @@ class InstituteAccountingBatch(models.Model):
         context = {'default_batch_id': self.id}
         if self.course_ids:
             context['default_course_id'] = self.course_ids[0].id
+        if self.branch_id:
+            context['default_branch_id'] = self.branch_id.id
         return {
             'name': 'Students',
             'type': 'ir.actions.act_window',
@@ -83,6 +85,8 @@ class InstituteAccountingBatch(models.Model):
         context = {'default_batch_id': self.id}
         if self.course_ids:
             context['default_course_id'] = self.course_ids[0].id
+        if self.branch_id:
+            context['default_branch_id'] = self.branch_id.id
         return {
             'name': 'Import Students & Dues',
             'type': 'ir.actions.act_window',
