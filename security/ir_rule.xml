@@ -4,10 +4,26 @@
         <!-- Force noupdate=False for existing rules so they can be overwritten -->
         <function name="write" model="ir.model.data">
             <function name="search" model="ir.model.data">
-                <value eval="[('module', '=', 'institute_accounting'), ('name', 'in', ['rule_institute_accounting_transaction_branch', 'rule_institute_accounting_report_branch'])]"/>
+                <value eval="[('module', '=', 'institute_accounting'), ('name', 'in', ['rule_institute_accounting_transaction_branch', 'rule_institute_accounting_report_branch', 'rule_institute_accounting_batch_branch', 'rule_institute_accounting_batch_manager'])]"/>
             </function>
             <value eval="{'noupdate': False}"/>
         </function>
+
+        <!-- Branch Accountant Batch -->
+        <record id="rule_institute_accounting_batch_branch" model="ir.rule">
+            <field name="name">Branch Accountant Batch</field>
+            <field name="model_id" ref="model_institute_accounting_batch"/>
+            <field name="domain_force">['|', ('branch_id', '=', False), '|', ('branch_id.accountant_id', '=', user.id), ('branch_id', 'in', user.branch_ids.ids)]</field>
+            <field name="groups" eval="[(4, ref('institute_accounting.group_institute_accounting_branch'))]"/>
+        </record>
+
+        <!-- Finance Manager Batch -->
+        <record id="rule_institute_accounting_batch_manager" model="ir.rule">
+            <field name="name">Finance Manager Batch All</field>
+            <field name="model_id" ref="model_institute_accounting_batch"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('institute_accounting.group_institute_accounting_manager'))]"/>
+        </record>
 
         <!-- Branch Accountant: Own branch transactions only -->
         <record id="rule_institute_accounting_transaction_branch" model="ir.rule">

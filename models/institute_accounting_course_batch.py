@@ -19,6 +19,18 @@ class InstituteAccountingBatch(models.Model):
     _description = 'Accounting Batch'
     
     name = fields.Char(string='Batch Name', required=True)
+
+    @api.model
+    def _default_branch_from_accountant(self):
+        branch = self.env['student.branch'].search([('accountant_id', '=', self.env.user.id)], limit=1)
+        if branch:
+            return branch.id
+        if hasattr(self.env.user, 'branch_ids') and self.env.user.branch_ids:
+            return self.env.user.branch_ids[0].id
+        return False
+
+    branch_id = fields.Many2one('student.branch', string='Branch', default=_default_branch_from_accountant)
+    
     course_id = fields.Many2one('institute.accounting.course', string='Old Course Group') # Kept for data migration
     course_ids = fields.Many2many(
         'institute.accounting.course', 

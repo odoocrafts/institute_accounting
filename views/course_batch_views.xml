@@ -53,13 +53,34 @@
         <field name="name">institute.accounting.batch.tree</field>
         <field name="model">institute.accounting.batch</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree multi_edit="1">
                 <field name="name"/>
+                <field name="branch_id"/>
                 <field name="course_ids" widget="many2many_tags"/>
                 <field name="course_variant_id"/>
                 <field name="batch_period"/>
                 <field name="active" widget="boolean_toggle"/>
             </tree>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_institute_accounting_batch_search" model="ir.ui.view">
+        <field name="name">institute.accounting.batch.search</field>
+        <field name="model">institute.accounting.batch</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="branch_id"/>
+                <field name="course_ids"/>
+                <field name="course_variant_id"/>
+                <field name="batch_period"/>
+                <group expand="0" string="Group By">
+                    <filter string="Branch" name="group_by_branch" context="{'group_by':'branch_id'}"/>
+                    <filter string="Course Variant" name="group_by_course_variant" context="{'group_by':'course_variant_id'}"/>
+                    <filter string="Batch Period" name="group_by_batch_period" context="{'group_by':'batch_period'}"/>
+                </group>
+            </search>
         </field>
     </record>
 
@@ -70,21 +91,25 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_import_students" string="Import Students &amp; Dues" type="object" class="oe_highlight"/>
+                    <button name="action_import_students" type="object" string="Import Students &amp; Dues" class="oe_highlight"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_students" type="object" class="oe_stat_button" icon="fa-users">
-                            <field name="student_count" widget="statinfo" string="Students"/>
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Students</span>
+                                <span class="o_stat_value"><field name="student_count"/></span>
+                            </div>
                         </button>
                     </div>
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Batch Name"/>
+                            <field name="name" placeholder="Batch Name" readonly="1" force_save="1"/>
                         </h1>
                     </div>
                     <group>
                         <group>
+                            <field name="branch_id" required="1"/>
                             <field name="course_ids" widget="many2many_tags"/>
                             <field name="course_variant_id"/>
                             <field name="batch_period" placeholder="e.g. 2026-2029"/>
