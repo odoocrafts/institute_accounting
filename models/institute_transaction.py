@@ -29,7 +29,8 @@ class InstituteAccountingTransaction(models.Model):
     name = fields.Char(string='Reference', required=True, copy=False, readonly=True, default=lambda self: _('New'))
     branch_id = fields.Many2one('student.branch', string='Branch', required=True, default=_default_branch_from_accountant)
     transaction_type = fields.Selection([
-        ('income', 'Income'),
+        ('income', 'Fee Receipt'),
+        ('other_income', 'Other Income'),
         ('expense', 'Expense')
     ], string='Type', required=True)
     date = fields.Date(string='Date', required=True, default=fields.Date.context_today)
@@ -106,8 +107,9 @@ class InstituteAccountingTransaction(models.Model):
                 
                 if not seq:
                     branch = self.env['student.branch'].browse(branch_id)
+                    seq_name_prefix = transaction_type.replace('_', ' ').title()
                     seq = self.env['ir.sequence'].sudo().create({
-                        'name': f"{transaction_type.capitalize()} Transaction Sequence - Branch {branch.name}",
+                        'name': f"{seq_name_prefix} Transaction Sequence - Branch {branch.name}",
                         'code': seq_code,
                         'implementation': 'standard',
                         'padding': 4,
@@ -118,6 +120,8 @@ class InstituteAccountingTransaction(models.Model):
                 if seq_val:
                     if transaction_type == 'income':
                         prefix = self.env['ir.config_parameter'].sudo().get_param('institute_accounting.fee_receipt_prefix', default='JBIA')
+                    elif transaction_type == 'other_income':
+                        prefix = 'OI'
                     else:
                         prefix = self.env['ir.config_parameter'].sudo().get_param('institute_accounting.expense_voucher_prefix', default='VOU')
                     
@@ -173,7 +177,7 @@ class InstituteAccountingTransaction(models.Model):
 
     def action_refund(self):
         for rec in self:
-            if rec.transaction_type != 'income' or rec.state != 'paid':
+            if rec.transaction_type not in ('income', 'other_income') or rec.state != 'paid':
                 continue
             return {
                 'name': _('Refund Fee'),

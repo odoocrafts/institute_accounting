@@ -25,7 +25,7 @@ class PnLReportTemplate(models.AbstractModel):
         transactions = self.env['institute.accounting.transaction'].search(domain)
 
         # Process Income
-        income_transactions = transactions.filtered(lambda t: t.transaction_type == 'income')
+        income_transactions = transactions.filtered(lambda t: t.transaction_type in ('income', 'other_income'))
         income_dict = {}
         for t in income_transactions:
             category = t.fee_type_id.name if t.fee_type_id else 'Other Income'

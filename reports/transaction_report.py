@@ -9,7 +9,8 @@ class InstituteAccountingReport(models.Model):
     date = fields.Date('Date', readonly=True)
     branch_id = fields.Many2one('student.branch', string='Branch', readonly=True)
     transaction_type = fields.Selection([
-        ('income', 'Income'),
+        ('income', 'Fee Receipt'),
+        ('other_income', 'Other Income'),
         ('expense', 'Expense')
     ], string='Type', readonly=True)
     amount = fields.Float('Amount', readonly=True)
@@ -40,7 +41,7 @@ class InstituteAccountingReport(models.Model):
                 t.transaction_type,
                 t.amount,
                 CASE
-                    WHEN t.transaction_type = 'income' THEN t.amount
+                    WHEN t.transaction_type IN ('income', 'other_income') THEN t.amount
                     ELSE 0.0
                 END as income_amount,
                 CASE
@@ -48,7 +49,7 @@ class InstituteAccountingReport(models.Model):
                     ELSE 0.0
                 END as expense_amount,
                 CASE
-                    WHEN t.transaction_type = 'income' THEN t.amount
+                    WHEN t.transaction_type IN ('income', 'other_income') THEN t.amount
                     ELSE -t.amount
                 END as net_amount,
                 t.fee_type_id,

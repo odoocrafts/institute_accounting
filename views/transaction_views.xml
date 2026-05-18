@@ -13,7 +13,7 @@
         <field name="name">institute.accounting.transaction.tree</field>
         <field name="model">institute.accounting.transaction</field>
         <field name="arch" type="xml">
-            <tree decoration-success="transaction_type=='income'" decoration-danger="transaction_type=='expense'">
+            <tree decoration-success="transaction_type in ('income', 'other_income')" decoration-danger="transaction_type=='expense'">
                 <field name="name"/>
                 <field name="date"/>
                 <field name="branch_id"/>
@@ -36,7 +36,7 @@
                     <button name="action_print_voucher" type="object" string="Print Voucher" invisible="transaction_type == 'income'" class="oe_highlight"/>
                     <button name="action_print_receipt" type="object" string="Print Receipt" invisible="transaction_type != 'income' or state != 'paid'" class="oe_highlight"/>
                     <button name="action_paid" type="object" string="Mark as Paid / Received" invisible="state != 'draft'" class="oe_highlight"/>
-                    <button name="action_refund" type="object" string="Refund" invisible="transaction_type != 'income' or state != 'paid'"/>
+                    <button name="action_refund" type="object" string="Refund" invisible="transaction_type not in ('income', 'other_income') or state != 'paid'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,paid,refunded"/>
                 </header>
                 <sheet>
@@ -91,7 +91,8 @@
                 <field name="name"/>
                 <field name="branch_id"/>
                 <field name="transaction_ref"/>
-                <filter string="Income" name="income" domain="[('transaction_type', '=', 'income')]"/>
+                <filter string="Income (Fee)" name="income" domain="[('transaction_type', '=', 'income')]"/>
+                <filter string="Other Income" name="other_income" domain="[('transaction_type', '=', 'other_income')]"/>
                 <filter string="Expense" name="expense" domain="[('transaction_type', '=', 'expense')]"/>
                 <group expand="0" string="Group By">
                     <filter string="Branch" name="group_by_branch" context="{'group_by': 'branch_id'}"/>

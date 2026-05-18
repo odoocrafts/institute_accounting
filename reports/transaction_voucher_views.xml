@@ -81,7 +81,7 @@
                                 <th class="bg-light p-3">Reference</th>
                                 <td class="p-3"><span t-esc="doc.transaction_ref or 'N/A'"/></td>
                             </tr>
-                            <tr t-if="doc.transaction_type == 'income'">
+                            <tr t-if="doc.transaction_type in ('income', 'other_income')">
                                 <th class="bg-light p-3">Reference</th>
                                 <td colspan="3" class="p-3"><span t-esc="doc.transaction_ref or 'N/A'"/></td>
                             </tr>
