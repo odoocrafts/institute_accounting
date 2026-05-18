@@ -175,6 +175,21 @@ class InstituteAccountingTransaction(models.Model):
         for rec in self:
             return self.env.ref('institute_accounting.action_report_fee_receipt').report_action(rec)
 
+    def action_edit_transaction(self):
+        for rec in self:
+            if rec.state != 'paid':
+                continue
+            return {
+                'name': _('Edit Transaction'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'institute.accounting.edit.wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'default_transaction_id': rec.id,
+                }
+            }
+
     def action_refund(self):
         for rec in self:
             if rec.transaction_type not in ('income', 'other_income') or rec.state != 'paid':

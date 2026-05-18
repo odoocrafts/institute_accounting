@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_institute_accounting_edit_wizard_form" model="ir.ui.view">
+        <field name="name">institute.accounting.edit.wizard.form</field>
+        <field name="model">institute.accounting.edit.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Edit Transaction">
+                <group>
+                    <group>
+                        <field name="transaction_id" invisible="1"/>
+                        <field name="amount"/>
+                        <field name="date"/>
+                        <field name="edit_reason"/>
+                    </group>
+                    <group>
+                        <field name="account_id" options="{'no_create': True}"/>
+                        <field name="payment_method"/>
+                        <field name="transaction_ref" invisible="payment_method == 'cash'"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_confirm_edit" string="Confirm Edit" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
