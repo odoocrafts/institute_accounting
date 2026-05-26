@@ -144,10 +144,10 @@
                                 </div>
                                 
                                 <div class="col-5 pl-0">
-                                    <table class="table summary-table" style="margin-top: -1px;">
+                                    <table class="table summary-table" style="margin-top: -1px; table-layout: fixed;">
                                         <tr>
-                                            <td style="border-top: none;"><strong>Total Taxable Value</strong></td>
-                                            <td class="text-right" style="border-top: none;">
+                                            <td style="border-top: none; width: 56.5%;"><strong>Total Taxable Value</strong></td>
+                                            <td class="text-right" style="border-top: none; width: 43.5%;">
                                                 <span t-esc="taxable_value" t-options='{"widget": "monetary", "display_currency": env.company.currency_id}'/>
                                             </td>
                                         </tr>
