@@ -11,7 +11,7 @@
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['base', 'student_management', 'institute_crm'],
+    'depends': ['base', 'student_management'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
