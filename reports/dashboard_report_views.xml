@@ -16,53 +16,76 @@
                     <div class="page">
                         <h2>Accounting Dashboard - <t t-esc="data.get('period_label')"/></h2>
                         
-                        <div class="row mt-4">
-                            <!-- Summary Cards -->
-                            <div class="col-6 mb-3">
-                                <div style="border-top: 5px solid #10b981; padding: 10px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
-                                    <strong>INCOME</strong><br/>
-                                    <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('income_month', 0))"/></span>
-                                </div>
+                        <table style="width: 100%; margin-top: 20px; border-collapse: separate; border-spacing: 10px 10px;">
+                            <tr>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <div style="border-top: 5px solid #10b981; padding: 15px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                                        <strong>INCOME</strong><br/>
+                                        <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('income_month', 0))"/></span>
+                                    </div>
+                                </td>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <div style="border-top: 5px solid #ef4444; padding: 15px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                                        <strong>EXPENSES</strong><br/>
+                                        <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('expense_month', 0))"/></span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <div style="border-top: 5px solid #3b82f6; padding: 15px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                                        <strong>CASH BALANCE</strong><br/>
+                                        <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('cash_balance', 0))"/></span>
+                                    </div>
+                                </td>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <div style="border-top: 5px solid #06b6d4; padding: 15px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                                        <strong>BANK BALANCE</strong><br/>
+                                        <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('bank_balance', 0))"/></span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <div style="border-top: 5px solid #f59e0b; padding: 15px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; height: 100%;">
+                                        <strong>TOTAL FEE DUE</strong><br/>
+                                        <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('fee_due', 0))"/></span>
+                                    </div>
+                                </td>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <div style="padding: 15px; border-radius: 5px; border: 1px solid #ddd; height: 100%;">
+                                        <strong>Top Expense Categories</strong>
+                                        <table class="table table-sm mt-2 mb-0">
+                                            <tr t-foreach="data.get('top_expenses', [])" t-as="exp">
+                                                <td><t t-esc="exp['category']"/></td>
+                                                <td class="text-right text-danger"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(exp['amount'])"/></td>
+                                            </tr>
+                                            <t t-if="not data.get('top_expenses')">
+                                                <tr><td colspan="2">No expenses recorded for this period.</td></tr>
+                                            </t>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Charts Section (if manager and urls exist) -->
+                        <t t-if="data.get('is_manager') and data.get('pie_chart_url') and data.get('bar_chart_url')">
+                            <div style="page-break-inside: avoid; margin-top: 30px;">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="width: 50%; text-align: center; vertical-align: top; padding-right: 10px;">
+                                            <h4>Branch Wise Fee Due</h4>
+                                            <img t-att-src="data.get('pie_chart_url')" style="max-width: 100%; height: auto; max-height: 300px;"/>
+                                        </td>
+                                        <td style="width: 50%; text-align: center; vertical-align: top; padding-left: 10px;">
+                                            <h4>Income vs Expense</h4>
+                                            <img t-att-src="data.get('bar_chart_url')" style="max-width: 100%; height: auto; max-height: 300px;"/>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
-                            <div class="col-6 mb-3">
-                                <div style="border-top: 5px solid #ef4444; padding: 10px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
-                                    <strong>EXPENSES</strong><br/>
-                                    <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('expense_month', 0))"/></span>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div style="border-top: 5px solid #3b82f6; padding: 10px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
-                                    <strong>CASH BALANCE</strong><br/>
-                                    <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('cash_balance', 0))"/></span>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div style="border-top: 5px solid #06b6d4; padding: 10px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
-                                    <strong>BANK BALANCE</strong><br/>
-                                    <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('bank_balance', 0))"/></span>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div style="border-top: 5px solid #f59e0b; padding: 10px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
-                                    <strong>TOTAL FEE DUE</strong><br/>
-                                    <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('fee_due', 0))"/></span>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div style="padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-                                    <strong>Top Expense Categories</strong>
-                                    <table class="table table-sm mt-2">
-                                        <tr t-foreach="data.get('top_expenses', [])" t-as="exp">
-                                            <td><t t-esc="exp['category']"/></td>
-                                            <td class="text-right text-danger"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(exp['amount'])"/></td>
-                                        </tr>
-                                        <t t-if="not data.get('top_expenses')">
-                                            <tr><td colspan="2">No expenses recorded for this period.</td></tr>
-                                        </t>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                        </t>
 
                         <!-- Branch Metrics -->
                         <t t-if="data.get('is_manager') and data.get('branch_metrics')">

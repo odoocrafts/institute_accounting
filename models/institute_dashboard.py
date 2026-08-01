@@ -143,6 +143,42 @@ class InstituteDashboard(models.AbstractModel):
                         'fee_due': c_fee_due
                     })
         
+        # 7. Generate Chart URLs for PDF Report
+        import urllib.parse
+        import json
+        
+        pie_chart_url = ""
+        bar_chart_url = ""
+        
+        if is_manager and branch_metrics:
+            pie_labels = [b['name'][:15] + '..' if len(b['name']) > 15 else b['name'] for b in branch_metrics]
+            pie_data = [b['fee_due'] for b in branch_metrics]
+            pie_config = {
+                'type': 'pie',
+                'data': {
+                    'labels': pie_labels,
+                    'datasets': [{'data': pie_data, 'backgroundColor': ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#5a5c69', '#2e59d9', '#17a673', '#2c9faf']}]
+                },
+                'options': {'plugins': {'legend': {'position': 'bottom'}}}
+            }
+            pie_chart_url = f"https://quickchart.io/chart?w=500&h=300&c={urllib.parse.quote(json.dumps(pie_config))}"
+            
+            bar_labels = pie_labels
+            bar_income = [b['income'] for b in branch_metrics]
+            bar_expense = [b['expense'] for b in branch_metrics]
+            bar_config = {
+                'type': 'bar',
+                'data': {
+                    'labels': bar_labels,
+                    'datasets': [
+                        {'label': 'Income', 'data': bar_income, 'backgroundColor': '#1cc88a'},
+                        {'label': 'Expense', 'data': bar_expense, 'backgroundColor': '#e74a3b'}
+                    ]
+                },
+                'options': {'plugins': {'legend': {'position': 'bottom'}}}
+            }
+            bar_chart_url = f"https://quickchart.io/chart?w=500&h=300&c={urllib.parse.quote(json.dumps(bar_config))}"
+
         return {
             'is_manager': is_manager,
             'period': period,
@@ -158,5 +194,7 @@ class InstituteDashboard(models.AbstractModel):
             'branch_metrics': branch_metrics,
             'branch_totals': branch_totals,
             'course_metrics': course_metrics,
+            'pie_chart_url': pie_chart_url,
+            'bar_chart_url': bar_chart_url,
             'currency_symbol': self.env.company.currency_id.symbol or '₹'
         }
