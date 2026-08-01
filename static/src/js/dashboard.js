@@ -14,7 +14,7 @@ export class AccountingDashboard extends Component {
         this.chartInstance = null;
         this.incomeChartInstance = null;
         this.state = useState({
-            period: "previous_month",
+            period: "current_month",
             data: {
                 top_expenses: [],
                 branch_metrics: [],
@@ -36,7 +36,7 @@ export class AccountingDashboard extends Component {
                 expense_today: 0,
                 currency_symbol: '₹',
                 is_manager: false,
-                period_label: "Previous Month",
+                period_label: "This Month",
             },
             loading: true,
             error: false,
@@ -143,7 +143,7 @@ export class AccountingDashboard extends Component {
                 incomeData = this.state.data.branch_metrics.map(b => b.income);
                 expenseData = this.state.data.branch_metrics.map(b => b.expense);
             } else {
-                labels = ['This Month'];
+                labels = [this.state.data.period_label || 'This Month'];
                 incomeData = [this.state.data.income_month];
                 expenseData = [this.state.data.expense_month];
             }
