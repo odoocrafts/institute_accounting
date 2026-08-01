@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_report_dashboard" model="ir.actions.report">
+            <field name="name">Accounting Dashboard</field>
+            <field name="model">institute.accounting.dashboard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">institute_accounting.report_dashboard</field>
+            <field name="report_file">institute_accounting.report_dashboard</field>
+            <field name="binding_model_id" eval="False"/>
+        </record>
+
+        <template id="report_dashboard">
+            <t t-call="web.html_container">
+                <t t-call="web.internal_layout">
+                    <div class="page">
+                        <h2>Accounting Dashboard - <t t-esc="data.get('period_label')"/></h2>
+                        
+                        <div class="row mt-4">
+                            <!-- Summary Cards -->
+                            <div class="col-6 mb-3">
+                                <div style="border-top: 5px solid #10b981; padding: 10px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                                    <strong>INCOME</strong><br/>
+                                    <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('income_month', 0))"/></span>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div style="border-top: 5px solid #ef4444; padding: 10px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                                    <strong>EXPENSES</strong><br/>
+                                    <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('expense_month', 0))"/></span>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div style="border-top: 5px solid #3b82f6; padding: 10px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                                    <strong>CASH BALANCE</strong><br/>
+                                    <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('cash_balance', 0))"/></span>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div style="border-top: 5px solid #06b6d4; padding: 10px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                                    <strong>BANK BALANCE</strong><br/>
+                                    <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('bank_balance', 0))"/></span>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div style="border-top: 5px solid #f59e0b; padding: 10px; border-radius: 5px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;">
+                                    <strong>TOTAL FEE DUE</strong><br/>
+                                    <span style="font-size: 20px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('fee_due', 0))"/></span>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div style="padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                                    <strong>Top Expense Categories</strong>
+                                    <table class="table table-sm mt-2">
+                                        <tr t-foreach="data.get('top_expenses', [])" t-as="exp">
+                                            <td><t t-esc="exp['category']"/></td>
+                                            <td class="text-right text-danger"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(exp['amount'])"/></td>
+                                        </tr>
+                                        <t t-if="not data.get('top_expenses')">
+                                            <tr><td colspan="2">No expenses recorded for this period.</td></tr>
+                                        </t>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Branch Metrics -->
+                        <t t-if="data.get('is_manager') and data.get('branch_metrics')">
+                            <h4 class="mt-4">Branch Performance Overview</h4>
+                            <table class="table table-bordered table-sm mt-2">
+                                <thead>
+                                    <tr>
+                                        <th>Branch</th>
+                                        <th class="text-right">Income</th>
+                                        <th class="text-right">Expense</th>
+                                        <th class="text-right">Profit</th>
+                                        <th class="text-right">Uncollected Fee</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="data.get('branch_metrics')" t-as="b">
+                                        <td><strong><t t-esc="b['name']"/></strong></td>
+                                        <td class="text-right text-success"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(b['income'])"/></td>
+                                        <td class="text-right text-danger"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(b['expense'])"/></td>
+                                        <td class="text-right"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(b['profit'])"/></td>
+                                        <td class="text-right text-warning"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(b['fee_due'])"/></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="font-weight-bold bg-light">
+                                        <td>Total</td>
+                                        <td class="text-right text-success"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('branch_totals').get('income', 0))"/></td>
+                                        <td class="text-right text-danger"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('branch_totals').get('expense', 0))"/></td>
+                                        <td class="text-right"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('branch_totals').get('profit', 0))"/></td>
+                                        <td class="text-right text-warning"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('branch_totals').get('fee_due', 0))"/></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <h4 class="mt-4">Branch Cash &amp; Bank Balances</h4>
+                            <table class="table table-bordered table-sm mt-2">
+                                <thead>
+                                    <tr>
+                                        <th>Branch</th>
+                                        <th class="text-right">Cash Balance</th>
+                                        <th class="text-right">Bank Balance</th>
+                                        <th class="text-right">Total Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="data.get('branch_metrics')" t-as="b">
+                                        <td><strong><t t-esc="b['name']"/></strong></td>
+                                        <td class="text-right"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(b['cash_balance'])"/></td>
+                                        <td class="text-right"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(b['bank_balance'])"/></td>
+                                        <td class="text-right"><strong class="text-primary"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(b['total_balance'])"/></strong></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="font-weight-bold bg-light">
+                                        <td>Total</td>
+                                        <td class="text-right"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('branch_totals').get('cash_balance', 0))"/></td>
+                                        <td class="text-right"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('branch_totals').get('bank_balance', 0))"/></td>
+                                        <td class="text-right"><strong class="text-primary"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('branch_totals').get('total_balance', 0))"/></strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </t>
+
+                        <!-- Course Metrics -->
+                        <t t-if="not data.get('is_manager') and data.get('course_metrics')">
+                            <h4 class="mt-4">Course Wise Fee Due</h4>
+                            <table class="table table-bordered table-sm mt-2">
+                                <thead>
+                                    <tr>
+                                        <th>Course</th>
+                                        <th class="text-right">Uncollected Fee</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="data.get('course_metrics')" t-as="c">
+                                        <td><strong><t t-esc="c['name']"/></strong></td>
+                                        <td class="text-right text-warning"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(c['fee_due'])"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

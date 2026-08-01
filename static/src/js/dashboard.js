@@ -80,7 +80,12 @@ export class AccountingDashboard extends Component {
     }
 
     printDashboard() {
-        window.print();
+        this.action.doAction({
+            type: "ir.actions.report",
+            report_type: "qweb-pdf",
+            report_name: "institute_accounting.report_dashboard",
+            data: { period: this.state.period }
+        });
     }
 
     renderCharts() {

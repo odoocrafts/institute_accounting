@@ -34,6 +34,7 @@
         'wizard/student_dropout_wizard_views.xml',
         'wizard/pnl_report_wizard_views.xml',
         'reports/transaction_report_views.xml',
+        'reports/dashboard_report_views.xml',
         'reports/pnl_report_template.xml',
         'reports/fee_collection_report_views.xml',
         'reports/transaction_voucher_views.xml',
