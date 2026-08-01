@@ -1,5 +1,5 @@
 from odoo import api, fields, models
-from datetime import date
+from datetime import date, timedelta
 
 class InstituteDashboard(models.AbstractModel):
     _name = 'institute.accounting.dashboard'
