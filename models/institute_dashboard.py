@@ -56,6 +56,15 @@ class InstituteDashboard(models.AbstractModel):
 
         # 5. Branch Metrics (Manager only)
         branch_metrics = []
+        branch_totals = {
+            'cash_balance': 0.0,
+            'bank_balance': 0.0,
+            'total_balance': 0.0,
+            'fee_due': 0.0,
+            'income': 0.0,
+            'expense': 0.0,
+            'profit': 0.0,
+        }
         if is_manager:
             branches = self.env['student.branch'].sudo().search([])
             for b in branches:
@@ -66,13 +75,31 @@ class InstituteDashboard(models.AbstractModel):
                 b_students = self.env['institute.accounting.student'].search([('branch_id', '=', b.id)])
                 b_fee_due = sum(b_students.mapped('total_due'))
 
+                b_accounts = self.env['institute.account'].search([('branch_id', '=', b.id)])
+                b_cash = sum(b_accounts.filtered(lambda a: a.account_type == 'cash').mapped('current_balance'))
+                b_bank = sum(b_accounts.filtered(lambda a: a.account_type in ['bank', 'upi']).mapped('current_balance'))
+
                 branch_metrics.append({
+                    'id': b.id,
                     'name': b.name,
+                    'cash_balance': b_cash,
+                    'bank_balance': b_bank,
+                    'total_balance': b_cash + b_bank,
                     'income': inc,
                     'expense': exp,
                     'profit': inc - exp,
                     'fee_due': b_fee_due
                 })
+
+            branch_totals = {
+                'cash_balance': sum(b['cash_balance'] for b in branch_metrics),
+                'bank_balance': sum(b['bank_balance'] for b in branch_metrics),
+                'total_balance': sum(b['total_balance'] for b in branch_metrics),
+                'fee_due': sum(b['fee_due'] for b in branch_metrics),
+                'income': sum(b['income'] for b in branch_metrics),
+                'expense': sum(b['expense'] for b in branch_metrics),
+                'profit': sum(b['profit'] for b in branch_metrics),
+            }
 
         # 6. Course Metrics (Branch Accountant only)
         course_metrics = []
@@ -98,6 +125,7 @@ class InstituteDashboard(models.AbstractModel):
             'expense_today': expense_today,
             'top_expenses': top_expenses,
             'branch_metrics': branch_metrics,
+            'branch_totals': branch_totals,
             'course_metrics': course_metrics,
-            'currency_symbol': self.env.company.currency_id.symbol
+            'currency_symbol': self.env.company.currency_id.symbol or '₹'
         }

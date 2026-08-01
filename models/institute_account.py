@@ -8,7 +8,7 @@ class InstituteAccount(models.Model):
     name = fields.Char(string='Account Name', required=True)
     branch_id = fields.Many2one('student.branch', string='Branch', required=True)
     account_type = fields.Selection([
-        ('cash', 'Petty Cash'),
+        ('cash', 'Cash'),
         ('bank', 'Bank Account'),
         ('upi', 'UPI')
     ], string='Type', required=True, default='cash')

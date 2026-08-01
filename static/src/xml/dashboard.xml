@@ -50,12 +50,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Cash Balance -->
+                             <!-- Cash Balance -->
                             <div class="col-md-3">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 bg-primary text-dark pt-2">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase fw-bold mb-0 text-muted">Petty Cash Balance</h6>
+                                            <h6 class="text-uppercase fw-bold mb-0 text-muted">Cash Balance</h6>
                                             <i class="fa fa-money fa-2x opacity-50"></i>
                                         </div>
                                         <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.cash_balance)"/></h3>
@@ -145,39 +145,140 @@
                             </div>
                         </div>
                         
-                        <!-- Manager Specific Section: Branch Performance -->
+                        <!-- Manager Specific Section: Branch Performance & Balances -->
                         <t t-if="state.data.is_manager">
+                            <!-- 1. Branch Cash & Bank Balances -->
                             <div class="row mb-4">
                                 <div class="col-12">
-                                    <h4 class="fw-bold text-dark mb-3 mt-4">Branch Performance (This Month)</h4>
-                                </div>
-                                <t t-foreach="state.data.branch_metrics" t-as="bm" t-key="bm.name">
-                                    <div class="col-md-4 mb-4">
-                                        <div class="card border-0 shadow-sm rounded-4 h-100">
-                                            <div class="card-body">
-                                                <h5 class="fw-bold text-dark mb-3 border-bottom pb-2"><t t-esc="bm.name"/></h5>
-                                                <div class="d-flex justify-content-between mb-2">
-                                                    <span class="text-muted">Total Due:</span>
-                                                    <span class="text-warning fw-bold"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.fee_due)"/></span>
+                                    <div class="card border-0 shadow-sm rounded-4">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <div>
+                                                    <h5 class="fw-bold text-dark mb-1">
+                                                        <i class="fa fa-university text-primary me-2"></i>Branch Cash &amp; Bank Balances
+                                                    </h5>
+                                                    <small class="text-muted">Real-time liquid account balances per branch</small>
                                                 </div>
-                                                <div class="d-flex justify-content-between mb-2">
-                                                    <span class="text-muted">Income:</span>
-                                                    <span class="text-success fw-bold"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.income)"/></span>
-                                                </div>
-                                                <div class="d-flex justify-content-between mb-2">
-                                                    <span class="text-muted">Expense:</span>
-                                                    <span class="text-danger fw-bold"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.expense)"/></span>
-                                                </div>
-                                                <div class="d-flex justify-content-between mt-3 pt-2 border-top">
-                                                    <span class="fw-bold">Pnl/Loss:</span>
-                                                    <span t-attf-class="fw-bold {{ bm.profit >= 0 ? 'text-success' : 'text-danger' }}">
-                                                        <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.profit)"/>
-                                                    </span>
-                                                </div>
+                                                <span class="badge bg-primary-subtle text-primary border border-primary rounded-pill px-3 py-2">
+                                                    <t t-esc="state.data.branch_metrics.length"/> Branches
+                                                </span>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-hover align-middle mb-0">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th class="fw-bold">Branch Name</th>
+                                                            <th class="text-end fw-bold">Cash Balance</th>
+                                                            <th class="text-end fw-bold">Bank Balance</th>
+                                                            <th class="text-end fw-bold">Total Liquid Balance</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="state.data.branch_metrics" t-as="bm" t-key="bm.name">
+                                                            <tr>
+                                                                <td class="fw-bold text-dark"><t t-esc="bm.name"/></td>
+                                                                <td class="text-end fw-semibold text-primary">
+                                                                    <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.cash_balance)"/>
+                                                                </td>
+                                                                <td class="text-end fw-semibold text-info">
+                                                                    <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.bank_balance)"/>
+                                                                </td>
+                                                                <td class="text-end fw-bold text-dark">
+                                                                    <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.total_balance)"/>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </tbody>
+                                                    <tfoot class="table-light fw-bolder border-top border-2">
+                                                        <tr>
+                                                            <td>Total All Branches</td>
+                                                            <td class="text-end text-primary">
+                                                                <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.branch_totals.cash_balance)"/>
+                                                            </td>
+                                                            <td class="text-end text-info">
+                                                                <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.branch_totals.bank_balance)"/>
+                                                            </td>
+                                                            <td class="text-end text-dark fs-6">
+                                                                <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.branch_totals.total_balance)"/>
+                                                            </td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
-                                </t>
+                                </div>
+                            </div>
+
+                            <!-- 2. Branch Performance & PnL Overview -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="card border-0 shadow-sm rounded-4">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <div>
+                                                    <h5 class="fw-bold text-dark mb-1">
+                                                        <i class="fa fa-line-chart text-success me-2"></i>Branch Performance Overview (This Month)
+                                                    </h5>
+                                                    <small class="text-muted">Consolidated summary of fee due, income, expenses, and PnL per branch</small>
+                                                </div>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-hover align-middle mb-0">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th class="fw-bold">Branch Name</th>
+                                                            <th class="text-end fw-bold">Total Due</th>
+                                                            <th class="text-end fw-bold">Income (This Month)</th>
+                                                            <th class="text-end fw-bold">Expense (This Month)</th>
+                                                            <th class="text-end fw-bold">Net PnL / Profit</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="state.data.branch_metrics" t-as="bm" t-key="bm.name">
+                                                            <tr>
+                                                                <td class="fw-bold text-dark"><t t-esc="bm.name"/></td>
+                                                                <td class="text-end fw-semibold text-warning">
+                                                                    <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.fee_due)"/>
+                                                                </td>
+                                                                <td class="text-end fw-semibold text-success">
+                                                                    <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.income)"/>
+                                                                </td>
+                                                                <td class="text-end fw-semibold text-danger">
+                                                                    <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.expense)"/>
+                                                                </td>
+                                                                <td class="text-end fw-bold">
+                                                                    <span t-attf-class="badge rounded-pill px-3 py-2 {{ bm.profit >= 0 ? 'bg-success text-white' : 'bg-danger text-white' }}">
+                                                                        <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(bm.profit)"/>
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </tbody>
+                                                    <tfoot class="table-light fw-bolder border-top border-2">
+                                                        <tr>
+                                                            <td>Total All Branches</td>
+                                                            <td class="text-end text-warning">
+                                                                <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.branch_totals.fee_due)"/>
+                                                            </td>
+                                                            <td class="text-end text-success">
+                                                                <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.branch_totals.income)"/>
+                                                            </td>
+                                                            <td class="text-end text-danger">
+                                                                <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.branch_totals.expense)"/>
+                                                            </td>
+                                                            <td class="text-end">
+                                                                <span t-attf-class="badge rounded-pill px-3 py-2 fs-6 {{ state.data.branch_totals.profit >= 0 ? 'bg-success text-white' : 'bg-danger text-white' }}">
+                                                                    <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.branch_totals.profit)"/>
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </t>
                     </t>
