@@ -6,7 +6,7 @@ class InstituteDashboard(models.AbstractModel):
     _description = 'Accounting Dashboard Backend'
 
     @api.model
-    def get_metrics(self):
+    def get_metrics(self, period='previous_month'):
         is_manager = self.env.user.has_group('institute_accounting.group_institute_accounting_manager')
         
         domain_branch = []
@@ -25,7 +25,24 @@ class InstituteDashboard(models.AbstractModel):
                 student_domain_branch = [('id', '=', 0)]
 
         today = date.today()
-        first_day_month = today.replace(day=1)
+        
+        if period == 'current_month':
+            start_date = today.replace(day=1)
+            end_date = today
+            period_label = "This Month"
+        elif period == 'current_fy':
+            if today.month >= 4:
+                fy_start = today.year
+            else:
+                fy_start = today.year - 1
+            start_date = date(fy_start, 4, 1)
+            end_date = date(fy_start + 1, 3, 31)
+            period_label = f"FY {fy_start}-{str(fy_start + 1)[-2:]}"
+        else:  # default 'previous_month'
+            first_this_month = today.replace(day=1)
+            end_date = first_this_month - timedelta(days=1)
+            start_date = end_date.replace(day=1)
+            period_label = "Previous Month"
         
         # 1. Balances
         accounts = self.env['institute.account'].search(domain_branch)
@@ -39,14 +56,15 @@ class InstituteDashboard(models.AbstractModel):
         # 3. Income / Expenses
         transactions = self.env['institute.accounting.transaction'].search([('state', 'in', ['paid', 'refunded'])] + domain_branch)
         
-        income_month = sum(transactions.filtered(lambda t: t.transaction_type in ('income', 'other_income') and t.date and t.date >= first_day_month).mapped('amount'))
-        expense_month = sum(transactions.filtered(lambda t: t.transaction_type == 'expense' and t.date and t.date >= first_day_month).mapped('amount'))
+        period_trans = transactions.filtered(lambda t: t.date and start_date <= t.date <= end_date)
+        income_month = sum(period_trans.filtered(lambda t: t.transaction_type in ('income', 'other_income')).mapped('amount'))
+        expense_month = sum(period_trans.filtered(lambda t: t.transaction_type == 'expense').mapped('amount'))
         
         income_today = sum(transactions.filtered(lambda t: t.transaction_type in ('income', 'other_income') and t.date == today).mapped('amount'))
         expense_today = sum(transactions.filtered(lambda t: t.transaction_type == 'expense' and t.date == today).mapped('amount'))
         
         # 4. Top Expenses
-        expenses = transactions.filtered(lambda t: t.transaction_type == 'expense' and t.date and t.date >= first_day_month)
+        expenses = period_trans.filtered(lambda t: t.transaction_type == 'expense')
         expense_dict = {}
         for exp in expenses:
             cat_name = exp.expense_type_id.name or 'Other'
@@ -68,7 +86,7 @@ class InstituteDashboard(models.AbstractModel):
         if is_manager:
             branches = self.env['student.branch'].sudo().search([])
             for b in branches:
-                b_trans = transactions.filtered(lambda t: t.branch_id.id == b.id and t.date and t.date >= first_day_month)
+                b_trans = period_trans.filtered(lambda t: t.branch_id.id == b.id)
                 inc = sum(b_trans.filtered(lambda t: t.transaction_type in ('income', 'other_income')).mapped('amount'))
                 exp = sum(b_trans.filtered(lambda t: t.transaction_type == 'expense').mapped('amount'))
                 
@@ -116,6 +134,8 @@ class InstituteDashboard(models.AbstractModel):
         
         return {
             'is_manager': is_manager,
+            'period': period,
+            'period_label': period_label,
             'cash_balance': cash_balance,
             'bank_balance': bank_balance,
             'fee_due': fee_due,

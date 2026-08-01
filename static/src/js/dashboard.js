@@ -14,6 +14,7 @@ export class AccountingDashboard extends Component {
         this.chartInstance = null;
         this.incomeChartInstance = null;
         this.state = useState({
+            period: "previous_month",
             data: {
                 top_expenses: [],
                 branch_metrics: [],
@@ -35,6 +36,7 @@ export class AccountingDashboard extends Component {
                 expense_today: 0,
                 currency_symbol: '₹',
                 is_manager: false,
+                period_label: "Previous Month",
             },
             loading: true,
             error: false,
@@ -62,7 +64,7 @@ export class AccountingDashboard extends Component {
             const data = await this.orm.call(
                 "institute.accounting.dashboard",
                 "get_metrics",
-                []
+                [this.state.period]
             );
             this.state.data = data;
         } catch (error) {
@@ -70,6 +72,15 @@ export class AccountingDashboard extends Component {
         } finally {
             this.state.loading = false;
         }
+    }
+
+    async onPeriodChange(ev) {
+        this.state.period = ev.target.value;
+        await this.fetchData();
+    }
+
+    printDashboard() {
+        window.print();
     }
 
     renderCharts() {

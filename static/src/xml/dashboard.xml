@@ -2,14 +2,48 @@
 <templates id="template" xml:space="preserve">
     <t t-name="institute_accounting.Dashboard" owl="1">
         <div class="o_action o_view_controller">
+            <style>
+                @media print {
+                    .no-print, .o_main_navbar, .o_control_panel, header, nav, .btn, select {
+                        display: none !important;
+                    }
+                    .o_content, .o_action, .container-fluid {
+                        overflow: visible !important;
+                        height: auto !important;
+                        background: #ffffff !important;
+                    }
+                    .card {
+                        break-inside: avoid;
+                        box-shadow: none !important;
+                        border: 1px solid #dee2e6 !important;
+                    }
+                }
+            </style>
+
             <div class="o_content o_accounting_dashboard bg-light h-100">
                 <div class="container-fluid py-4 h-100 overflow-auto">
-                    <!-- Header -->
-                    <div class="row mb-4">
-                        <div class="col-12 d-flex justify-content-between align-items-center">
+                    <!-- Header Bar -->
+                    <div class="row mb-4 align-items-center">
+                        <div class="col-md-4 col-12 mb-2 mb-md-0">
                             <h2 class="text-primary fw-bold mb-0">Accounting Overview</h2>
-                            <button class="btn btn-primary" t-on-click="openNewTransaction">
-                                <i class="fa fa-plus me-2"></i>New Transaction
+                        </div>
+                        <div class="col-md-8 col-12 d-flex justify-content-md-end align-items-center flex-wrap gap-2 no-print">
+                            <!-- Period Selection Dropdown -->
+                            <div class="d-flex align-items-center bg-white rounded-3 shadow-sm px-2 py-1 border me-2">
+                                <i class="fa fa-calendar text-muted me-2 ms-1"></i>
+                                <select class="form-select border-0 bg-transparent fw-bold text-dark shadow-none cursor-pointer" t-on-change="onPeriodChange" style="width: auto; min-width: 170px;">
+                                    <option value="previous_month" t-att-selected="state.period === 'previous_month'">Previous Month</option>
+                                    <option value="current_month" t-att-selected="state.period === 'current_month'">Current Month</option>
+                                    <option value="current_fy" t-att-selected="state.period === 'current_fy'">Current FY (Apr-Mar)</option>
+                                </select>
+                            </div>
+                            <!-- Print PDF Button -->
+                            <button class="btn btn-outline-dark shadow-sm fw-semibold me-2" t-on-click="printDashboard" title="Print Dashboard as PDF">
+                                <i class="fa fa-print me-1"></i>Print PDF
+                            </button>
+                            <!-- New Transaction Button -->
+                            <button class="btn btn-primary shadow-sm fw-semibold" t-on-click="openNewTransaction">
+                                <i class="fa fa-plus me-1"></i>New Transaction
                             </button>
                         </div>
                     </div>
@@ -24,53 +58,55 @@
                     <t t-else="">
                         <!-- Top Cards -->
                         <div class="row g-4 mb-4">
-                            <!-- Income Month -->
+                            <!-- Income Card -->
                             <div class="col-md-3">
-                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-success text-dark pt-2">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase fw-bold mb-0 text-muted">Income (This Month)</h6>
-                                            <i class="fa fa-arrow-down fa-2x opacity-50"></i>
+                                <div class="card h-100 border-0 shadow-sm rounded-4 pt-1" style="background-color: #f0fdf4; border-top: 5px solid #10b981 !important;">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="text-uppercase fw-bold mb-0 text-secondary opacity-75" style="letter-spacing: 0.5px;">INCOME (<t t-esc="state.data.period_label.toUpperCase()"/>)</h6>
+                                            <i class="fa fa-arrow-down fs-4 text-success opacity-75"></i>
                                         </div>
-                                        <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.income_month)"/></h3>
-                                        <small class="text-muted">Today: <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.income_today)"/></small>
+                                        <h2 class="mb-1 fw-bolder text-dark"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.income_month)"/></h2>
+                                        <small class="text-muted fw-semibold">Today: <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.income_today)"/></small>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Expense Month -->
+                            <!-- Expenses Card -->
                             <div class="col-md-3">
-                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-danger text-dark pt-2">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase fw-bold mb-0 text-muted">Expenses (This Month)</h6>
-                                            <i class="fa fa-arrow-up fa-2x opacity-50"></i>
+                                <div class="card h-100 border-0 shadow-sm rounded-4 pt-1" style="background-color: #fef2f2; border-top: 5px solid #ef4444 !important;">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="text-uppercase fw-bold mb-0 text-secondary opacity-75" style="letter-spacing: 0.5px;">EXPENSES (<t t-esc="state.data.period_label.toUpperCase()"/>)</h6>
+                                            <i class="fa fa-arrow-up fs-4 text-danger opacity-75"></i>
                                         </div>
-                                        <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.expense_month)"/></h3>
-                                        <small class="text-muted">Today: <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.expense_today)"/></small>
+                                        <h2 class="mb-1 fw-bolder text-dark"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.expense_month)"/></h2>
+                                        <small class="text-muted fw-semibold">Today: <t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.expense_today)"/></small>
                                     </div>
                                 </div>
                             </div>
-                             <!-- Cash Balance -->
+                            <!-- Cash Balance Card -->
                             <div class="col-md-3">
-                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-primary text-dark pt-2">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase fw-bold mb-0 text-muted">Cash Balance</h6>
-                                            <i class="fa fa-money fa-2x opacity-50"></i>
+                                <div class="card h-100 border-0 shadow-sm rounded-4 pt-1" style="background-color: #eff6ff; border-top: 5px solid #3b82f6 !important;">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="text-uppercase fw-bold mb-0 text-secondary opacity-75" style="letter-spacing: 0.5px;">CASH BALANCE</h6>
+                                            <i class="fa fa-money fs-4 text-primary opacity-75"></i>
                                         </div>
-                                        <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.cash_balance)"/></h3>
+                                        <h2 class="mb-1 fw-bolder text-dark"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.cash_balance)"/></h2>
+                                        <small class="text-muted fw-semibold">Real-time Cash Accounts</small>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Bank Balance -->
+                            <!-- Bank Balance Card -->
                             <div class="col-md-3">
-                                <div class="card h-100 border-0 shadow-sm rounded-4 bg-info text-dark pt-2">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase fw-bold mb-0 text-muted">Bank Balance</h6>
-                                            <i class="fa fa-university fa-2x opacity-50"></i>
+                                <div class="card h-100 border-0 shadow-sm rounded-4 pt-1" style="background-color: #f0f9ff; border-top: 5px solid #06b6d4 !important;">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="text-uppercase fw-bold mb-0 text-secondary opacity-75" style="letter-spacing: 0.5px;">BANK BALANCE</h6>
+                                            <i class="fa fa-university fs-4 text-info opacity-75"></i>
                                         </div>
-                                        <h3 class="mb-0 fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.bank_balance)"/></h3>
+                                        <h2 class="mb-1 fw-bolder text-dark"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.bank_balance)"/></h2>
+                                        <small class="text-muted fw-semibold">Real-time Bank &amp; UPI</small>
                                     </div>
                                 </div>
                             </div>
@@ -79,31 +115,34 @@
                         <!-- Secondary Cards & Top Expenses -->
                         <div class="row g-4 mb-4">
                             <div class="col-md-4">
-                                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="text-uppercase fw-bold text-muted mb-0">Total Fee Due</h6>
-                                            <i class="fa fa-exclamation-circle fa-2x text-warning opacity-50"></i>
+                                <div class="card border-0 shadow-sm rounded-4 h-100 pt-1" style="background-color: #fffbeb; border-top: 5px solid #f59e0b !important;">
+                                    <div class="card-body p-4 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="text-uppercase fw-bold text-secondary opacity-75 mb-0" style="letter-spacing: 0.5px;">TOTAL FEE DUE</h6>
+                                                <i class="fa fa-exclamation-circle fs-4 text-warning opacity-75"></i>
+                                            </div>
+                                            <h2 class="mb-1 text-dark fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.fee_due)"/></h2>
                                         </div>
-                                        <h3 class="mb-0 text-dark fw-bolder"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(state.data.fee_due)"/></h3>
+                                        <small class="text-muted fw-semibold">Uncollected Student Dues</small>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-8">
                                 <div class="card border-0 shadow-sm rounded-4 h-100">
-                                    <div class="card-body">
-                                        <h6 class="text-uppercase fw-bold text-muted mb-4">Top Expense Categories (This Month)</h6>
+                                    <div class="card-body p-4">
+                                        <h6 class="text-uppercase fw-bold text-secondary mb-3 opacity-75" style="letter-spacing: 0.5px;">TOP EXPENSE CATEGORIES (<t t-esc="state.data.period_label.toUpperCase()"/>)</h6>
                                         <div class="table-responsive">
-                                            <table class="table table-borderless table-sm">
+                                            <table class="table table-borderless table-sm align-middle mb-0">
                                                 <tbody>
                                                     <t t-foreach="state.data.top_expenses" t-as="exp" t-key="exp.category">
                                                         <tr>
-                                                            <td class="fw-bold text-dark"><t t-esc="exp.category"/></td>
-                                                            <td class="text-end fw-bold text-danger"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(exp.amount)"/></td>
+                                                            <td class="fw-bold text-dark py-2"><t t-esc="exp.category"/></td>
+                                                            <td class="text-end fw-bold text-danger py-2"><t t-esc="state.data.currency_symbol"/> <t t-esc="formatNumber(exp.amount)"/></td>
                                                         </tr>
                                                     </t>
                                                     <t t-if="!state.data.top_expenses.length">
-                                                        <tr><td class="text-muted">No expenses recorded this month.</td></tr>
+                                                        <tr><td class="text-muted py-2">No expenses recorded for this period.</td></tr>
                                                     </t>
                                                 </tbody>
                                             </table>
@@ -114,11 +153,11 @@
                         </div>
 
                         <!-- Charts Section -->
-                        <div class="row mb-4">
+                        <div class="row g-4 mb-4">
                             <!-- Pie Chart -->
                             <div class="col-md-6 mb-4">
                                 <div class="card border-0 shadow-sm rounded-4 h-100">
-                                    <div class="card-body">
+                                    <div class="card-body p-4">
                                         <h5 class="fw-bold text-dark mb-3">
                                             <t t-if="state.data.is_manager">Branch Wise Fee Due</t>
                                             <t t-else="">Course Wise Fee Due</t>
@@ -132,10 +171,10 @@
                             <!-- Bar Chart -->
                             <div class="col-md-6 mb-4">
                                 <div class="card border-0 shadow-sm rounded-4 h-100">
-                                    <div class="card-body">
+                                    <div class="card-body p-4">
                                         <h5 class="fw-bold text-dark mb-3">
-                                            <t t-if="state.data.is_manager">Branch Wise Income &amp; Expense</t>
-                                            <t t-else="">Income vs Expense</t>
+                                            <t t-if="state.data.is_manager">Branch Wise Income &amp; Expense (<t t-esc="state.data.period_label"/>)</t>
+                                            <t t-else="">Income vs Expense (<t t-esc="state.data.period_label"/>)</t>
                                         </h5>
                                         <div style="position: relative; height:300px; width:100%">
                                             <canvas t-ref="branchIncomeChart"></canvas>
@@ -218,7 +257,7 @@
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <div>
                                                     <h5 class="fw-bold text-dark mb-1">
-                                                        <i class="fa fa-line-chart text-success me-2"></i>Branch Performance Overview (This Month)
+                                                        <i class="fa fa-line-chart text-success me-2"></i>Branch Performance Overview (<t t-esc="state.data.period_label"/>)
                                                     </h5>
                                                     <small class="text-muted">Consolidated summary of fee due, income, expenses, and PnL per branch</small>
                                                 </div>
@@ -229,8 +268,8 @@
                                                         <tr>
                                                             <th class="fw-bold">Branch Name</th>
                                                             <th class="text-end fw-bold">Total Due</th>
-                                                            <th class="text-end fw-bold">Income (This Month)</th>
-                                                            <th class="text-end fw-bold">Expense (This Month)</th>
+                                                            <th class="text-end fw-bold">Income (<t t-esc="state.data.period_label"/>)</th>
+                                                            <th class="text-end fw-bold">Expense (<t t-esc="state.data.period_label"/>)</th>
                                                             <th class="text-end fw-bold">Net PnL / Profit</th>
                                                         </tr>
                                                     </thead>
