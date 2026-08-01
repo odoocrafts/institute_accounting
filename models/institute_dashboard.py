@@ -29,7 +29,7 @@ class InstituteDashboard(models.AbstractModel):
         if period == 'current_month':
             start_date = today.replace(day=1)
             end_date = today
-            period_label = "This Month"
+            period_label = start_date.strftime("%B %Y")
         elif period == 'current_fy':
             if today.month >= 4:
                 fy_start = today.year
@@ -43,7 +43,7 @@ class InstituteDashboard(models.AbstractModel):
             first_this_month = today.replace(day=1)
             end_date = first_this_month - timedelta(days=1)
             start_date = end_date.replace(day=1)
-            period_label = "Previous Month"
+            period_label = start_date.strftime("%B %Y")
         
         # All paid/refunded transactions in domain_branch
         transactions = self.env['institute.accounting.transaction'].search([('state', 'in', ['paid', 'refunded'])] + domain_branch)
