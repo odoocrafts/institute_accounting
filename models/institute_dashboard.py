@@ -159,7 +159,12 @@ class InstituteDashboard(models.AbstractModel):
                     'labels': pie_labels,
                     'datasets': [{'data': pie_data, 'backgroundColor': ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#5a5c69', '#2e59d9', '#17a673', '#2c9faf']}]
                 },
-                'options': {'plugins': {'legend': {'position': 'bottom'}}}
+                'options': {
+                    'plugins': {
+                        'legend': {'position': 'bottom'},
+                        'datalabels': {'display': False}
+                    }
+                }
             }
             pie_chart_url = f"https://quickchart.io/chart?w=500&h=300&c={urllib.parse.quote(json.dumps(pie_config))}"
             

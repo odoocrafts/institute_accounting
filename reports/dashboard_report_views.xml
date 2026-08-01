@@ -14,6 +14,46 @@
             <t t-call="web.html_container">
                 <t t-call="web.external_layout">
                     <div class="page">
+                        <style>
+                            .page {
+                                font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                                color: #374151;
+                            }
+                            h2, h4 {
+                                font-weight: 600;
+                                color: #111827;
+                            }
+                            .custom-table {
+                                width: 100%;
+                                margin-bottom: 1rem;
+                                color: #374151;
+                                border-collapse: collapse;
+                            }
+                            .custom-table th, .custom-table td {
+                                padding: 0.75rem;
+                                vertical-align: middle;
+                                border: 1px solid #e5e7eb;
+                            }
+                            .custom-table thead th {
+                                vertical-align: bottom;
+                                border-bottom: 2px solid #d1d5db;
+                                background-color: #f3f4f6;
+                                color: #4b5563;
+                                font-weight: 600;
+                                text-transform: uppercase;
+                                font-size: 0.85rem;
+                            }
+                            .custom-table tbody tr {
+                                page-break-inside: avoid;
+                            }
+                            .custom-table tbody tr:nth-of-type(even) {
+                                background-color: #f9fafb;
+                            }
+                            .custom-table tfoot tr {
+                                background-color: #f3f4f6;
+                                font-weight: bold;
+                            }
+                        </style>
                         <h2>Accounting Dashboard - <t t-esc="data.get('period_label')"/></h2>
                         
                         <table style="width: 100%; margin-top: 20px; border-collapse: separate; border-spacing: 10px 10px;">
@@ -55,7 +95,7 @@
                                 <td style="width: 50%; vertical-align: top;">
                                     <div style="padding: 15px; border-radius: 5px; border: 1px solid #ddd; height: 100%;">
                                         <strong>Top Expense Categories</strong>
-                                        <table class="table table-sm mt-2 mb-0">
+                                        <table class="custom-table mt-2 mb-0">
                                             <tr t-foreach="data.get('top_expenses', [])" t-as="exp">
                                                 <td><t t-esc="exp['category']"/></td>
                                                 <td class="text-right text-danger"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(exp['amount'])"/></td>
@@ -90,7 +130,7 @@
                         <!-- Branch Metrics -->
                         <t t-if="data.get('is_manager') and data.get('branch_metrics')">
                             <h4 class="mt-4">Branch Performance Overview</h4>
-                            <table class="table table-bordered table-sm mt-2">
+                            <table class="custom-table mt-2">
                                 <thead>
                                     <tr>
                                         <th>Branch</th>
@@ -110,7 +150,7 @@
                                     </tr>
                                 </tbody>
                                 <tfoot>
-                                    <tr class="font-weight-bold bg-light">
+                                    <tr>
                                         <td>Total</td>
                                         <td class="text-right text-success"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('branch_totals').get('income', 0))"/></td>
                                         <td class="text-right text-danger"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('branch_totals').get('expense', 0))"/></td>
@@ -121,7 +161,7 @@
                             </table>
 
                             <h4 class="mt-4">Branch Cash &amp; Bank Balances</h4>
-                            <table class="table table-bordered table-sm mt-2">
+                            <table class="custom-table mt-2">
                                 <thead>
                                     <tr>
                                         <th>Branch</th>
@@ -139,7 +179,7 @@
                                     </tr>
                                 </tbody>
                                 <tfoot>
-                                    <tr class="font-weight-bold bg-light">
+                                    <tr>
                                         <td>Total</td>
                                         <td class="text-right"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('branch_totals').get('cash_balance', 0))"/></td>
                                         <td class="text-right"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('branch_totals').get('bank_balance', 0))"/></td>
@@ -152,7 +192,7 @@
                         <!-- Course Metrics -->
                         <t t-if="not data.get('is_manager') and data.get('course_metrics')">
                             <h4 class="mt-4">Course Wise Fee Due</h4>
-                            <table class="table table-bordered table-sm mt-2">
+                            <table class="custom-table mt-2">
                                 <thead>
                                     <tr>
                                         <th>Course</th>
