@@ -14,7 +14,7 @@ export class AccountingDashboard extends Component {
         this.chartInstance = null;
         this.incomeChartInstance = null;
         this.state = useState({
-            period: "current_month",
+            period: "previous_month",
             data: {
                 top_expenses: [],
                 branch_metrics: [],
@@ -36,7 +36,7 @@ export class AccountingDashboard extends Component {
                 expense_today: 0,
                 currency_symbol: '₹',
                 is_manager: false,
-                period_label: "This Month",
+                period_label: "Previous Month",
             },
             loading: true,
             error: false,
