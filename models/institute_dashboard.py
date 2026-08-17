@@ -6,7 +6,7 @@ class InstituteDashboard(models.AbstractModel):
     _description = 'Accounting Dashboard Backend'
 
     @api.model
-    def get_metrics(self, period='previous_month'):
+    def get_metrics(self, period='current_month'):
         is_manager = self.env.user.has_group('institute_accounting.group_institute_accounting_manager')
         
         domain_branch = []
@@ -26,9 +26,10 @@ class InstituteDashboard(models.AbstractModel):
 
         today = date.today()
         
-        if period == 'current_month':
-            start_date = today.replace(day=1)
-            end_date = today
+        if period == 'previous_month':
+            first_this_month = today.replace(day=1)
+            end_date = first_this_month - timedelta(days=1)
+            start_date = end_date.replace(day=1)
             period_label = start_date.strftime("%B %Y")
         elif period == 'current_fy':
             if today.month >= 4:
@@ -38,11 +39,10 @@ class InstituteDashboard(models.AbstractModel):
             start_date = date(fy_start, 4, 1)
             end_date = date(fy_start + 1, 3, 31)
             period_label = f"FY {fy_start}-{str(fy_start + 1)[-2:]}"
-        else:  # default 'previous_month'
-            period = 'previous_month'
-            first_this_month = today.replace(day=1)
-            end_date = first_this_month - timedelta(days=1)
-            start_date = end_date.replace(day=1)
+        else:  # default 'current_month'
+            period = 'current_month'
+            start_date = today.replace(day=1)
+            end_date = today
             period_label = start_date.strftime("%B %Y")
         
         # All paid/refunded transactions in domain_branch

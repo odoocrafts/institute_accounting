@@ -6,7 +6,7 @@ class DashboardReport(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        period = data.get('period', 'previous_month') if data else 'previous_month'
+        period = data.get('period', 'current_month') if data else 'current_month'
         metrics = self.env['institute.accounting.dashboard'].get_metrics(period)
         return {
             'doc_ids': docids,
