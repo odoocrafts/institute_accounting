@@ -52,7 +52,7 @@ class InstituteDashboard(models.AbstractModel):
         accounts = self.env['institute.account'].search(domain_branch)
         
         def get_account_balance_as_of(acc_id, opening):
-            inc = sum(transactions.filtered(lambda t: t.account_id.id == acc_id and t.transaction_type == 'income' and t.date and t.date <= end_date).mapped('amount'))
+            inc = sum(transactions.filtered(lambda t: t.account_id.id == acc_id and t.transaction_type in ('income', 'other_income') and t.date and t.date <= end_date).mapped('amount'))
             exp = sum(transactions.filtered(lambda t: t.account_id.id == acc_id and t.transaction_type == 'expense' and t.date and t.date <= end_date).mapped('amount'))
             return opening + inc - exp
 
