@@ -1,4 +1,5 @@
 from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 class TransactionRefundWizard(models.TransientModel):
     _name = 'institute.accounting.refund.wizard'
@@ -13,16 +14,34 @@ class TransactionRefundWizard(models.TransientModel):
         ('upi', 'UPI')
     ], string='Refund Method', required=True, default='cash')
     
+    branch_id = fields.Many2one(related='transaction_id.branch_id')
     account_id = fields.Many2one('institute.account', string='Account', required=True)
     reason = fields.Char(string='Reason for Refund', required=True)
 
     @api.onchange('account_id')
     def _onchange_account_id(self):
-        if self.account_id:
+        if self.account_id and self.account_id.account_type != self.payment_method:
             self.payment_method = self.account_id.account_type
+
+    @api.onchange('payment_method')
+    def _onchange_payment_method(self):
+        if not self.payment_method:
+            return
+        if self.account_id and self.account_id.account_type == self.payment_method:
+            return
+        domain = [('account_type', '=', self.payment_method)]
+        if self.transaction_id.branch_id:
+            domain.append(('branch_id', '=', self.transaction_id.branch_id.id))
+        accounts = self.env['institute.account'].search(domain)
+        if len(accounts) == 1:
+            self.account_id = accounts
+        elif self.account_id and self.account_id.account_type != self.payment_method:
+            self.account_id = False
 
     def action_confirm_refund(self):
         self.ensure_one()
+        if self.account_id and self.account_id.account_type != self.payment_method:
+            raise ValidationError(_("Select an account of the same type as the refund method."))
         
         # 1. Reverse the fee from the student's dues
         if self.transaction_id.accounting_fee_line_id:

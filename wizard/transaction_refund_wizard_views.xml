@@ -12,8 +12,9 @@
                             <field name="amount"/>
                         </group>
                         <group>
-                            <field name="account_id" options="{'no_create': True}"/>
+                            <field name="branch_id" invisible="1"/>
                             <field name="payment_method"/>
+                            <field name="account_id" domain="[('branch_id', '=', branch_id), ('account_type', '=', payment_method)]" options="{'no_create': True}"/>
                         </group>
                     </group>
                     <group>

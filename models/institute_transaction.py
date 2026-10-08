@@ -102,31 +102,47 @@ class InstituteAccountingTransaction(models.Model):
               AND txn.account_id IS DISTINCT FROM match.account_id
         """)
 
-    def write(self, vals):
-        res = super().write(vals)
-        if self.env.context.get('skip_payment_account_sync'):
-            return res
-        if not any(key in vals for key in ('payment_method', 'account_id', 'branch_id')):
-            return res
-        for rec in self:
-            rec._sync_account_to_payment_method()
-        return res
-
-    def _sync_account_to_payment_method(self):
-        """Keep the posted account aligned with the payment method when that is unambiguous."""
-        self.ensure_one()
-        if self.payment_method not in ('cash', 'bank', 'upi'):
-            return
-        if self.account_id and self.account_id.account_type == self.payment_method:
-            return
-        if not self.branch_id:
-            return
+    def _align_account_vals(self, vals, branch_id, payment_method, account_id):
+        """Point the posting at the payment-method account when the branch has only one."""
+        payment_method = vals.get('payment_method', payment_method)
+        account_id = vals.get('account_id', account_id)
+        branch_id = vals.get('branch_id', branch_id)
+        if payment_method not in ('cash', 'bank', 'upi') or not branch_id:
+            return vals
+        account = self.env['institute.account'].browse(account_id) if account_id else self.env['institute.account']
+        if account and account.account_type == payment_method:
+            return vals
         accounts = self.env['institute.account'].search([
-            ('branch_id', '=', self.branch_id.id),
-            ('account_type', '=', self.payment_method),
+            ('branch_id', '=', branch_id),
+            ('account_type', '=', payment_method),
         ])
         if len(accounts) == 1:
-            self.with_context(skip_payment_account_sync=True).write({'account_id': accounts.id})
+            vals = dict(vals)
+            vals['account_id'] = accounts.id
+        return vals
+
+    def write(self, vals):
+        if self.env.context.get('skip_payment_account_sync'):
+            return super().write(vals)
+        if not any(key in vals for key in ('payment_method', 'account_id', 'branch_id')):
+            return super().write(vals)
+        if len(self) > 1:
+            for rec in self:
+                rec.write(vals)
+            return True
+        vals = self._align_account_vals(vals, self.branch_id.id, self.payment_method, self.account_id.id)
+        return super().write(vals)
+
+    @api.constrains('account_id', 'payment_method')
+    def _check_payment_account_type(self):
+        for rec in self:
+            if rec.account_id and rec.payment_method in ('cash', 'bank', 'upi') and rec.account_id.account_type != rec.payment_method:
+                raise ValidationError(_(
+                    "Account '%(account)s' is %(account_type)s, but the payment method is %(payment_method)s. Use an account of the same type.",
+                    account=rec.account_id.name,
+                    account_type=rec.account_id.account_type,
+                    payment_method=rec.payment_method,
+                ))
         
     payment_status = fields.Selection([
         ('paid_by_branch', 'Paid by Branch'),
@@ -194,6 +210,13 @@ class InstituteAccountingTransaction(models.Model):
                     vals['name'] = f"{prefix}/{number_part}/{fin_year}"
                 else:
                     vals['name'] = _('New')
+            if not self.env.context.get('skip_payment_account_sync'):
+                vals.update(self._align_account_vals(
+                    vals,
+                    vals.get('branch_id'),
+                    vals.get('payment_method'),
+                    vals.get('account_id'),
+                ))
         return super(InstituteAccountingTransaction, self).create(vals_list)
 
     @api.constrains('amount')
