@@ -1,4 +1,5 @@
 from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 class TransactionEditWizard(models.TransientModel):
     _name = 'institute.accounting.edit.wizard'
@@ -14,6 +15,7 @@ class TransactionEditWizard(models.TransientModel):
         ('upi', 'UPI')
     ], string='Payment Method', required=True)
     
+    branch_id = fields.Many2one(related='transaction_id.branch_id')
     account_id = fields.Many2one('institute.account', string='Account', required=True)
     transaction_ref = fields.Char(string='Transaction Reference')
     edit_reason = fields.Char(string='Edit Reason', required=True)
@@ -36,12 +38,30 @@ class TransactionEditWizard(models.TransientModel):
 
     @api.onchange('account_id')
     def _onchange_account_id(self):
-        if self.account_id:
+        if self.account_id and self.account_id.account_type != self.payment_method:
             self.payment_method = self.account_id.account_type
+
+    @api.onchange('payment_method')
+    def _onchange_payment_method(self):
+        if not self.payment_method:
+            return
+        if self.account_id and self.account_id.account_type == self.payment_method:
+            return
+        domain = [('account_type', '=', self.payment_method)]
+        branch = self.transaction_id.branch_id or self.branch_id
+        if branch:
+            domain.append(('branch_id', '=', branch.id))
+        accounts = self.env['institute.account'].search(domain)
+        if len(accounts) == 1:
+            self.account_id = accounts
+        elif self.account_id and self.account_id.account_type != self.payment_method:
+            self.account_id = False
 
     def action_confirm_edit(self):
         self.ensure_one()
-        
+        if self.account_id and self.account_id.account_type != self.payment_method:
+            raise ValidationError(_("Select an account of the same type as the payment method."))
+
         changes = []
         if self.transaction_id.amount != self.amount:
             changes.append(f"Amount: {self.transaction_id.amount} -> {self.amount}")

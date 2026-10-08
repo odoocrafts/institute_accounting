@@ -76,6 +76,57 @@ class InstituteAccountingTransaction(models.Model):
     def _onchange_account_id(self):
         if self.account_id:
             self.payment_method = self.account_id.account_type
+
+    def init(self):
+        super().init()
+        # A corrected payment method used to leave the transaction on an account of
+        # the old type, so cash still included bank-account postings. When the branch
+        # has one account of the corrected type, move the transaction onto it.
+        self.env.cr.execute("""
+            UPDATE institute_accounting_transaction AS txn
+            SET account_id = match.account_id
+            FROM (
+                SELECT t2.id AS txn_id, MIN(account.id) AS account_id
+                FROM institute_accounting_transaction t2
+                JOIN institute_account wrong ON wrong.id = t2.account_id
+                JOIN institute_account account
+                  ON account.branch_id = t2.branch_id
+                 AND account.active IS TRUE
+                 AND account.account_type = t2.payment_method
+                WHERE t2.payment_method IN ('cash', 'bank', 'upi')
+                  AND wrong.account_type IS DISTINCT FROM t2.payment_method
+                GROUP BY t2.id
+                HAVING COUNT(account.id) = 1
+            ) AS match
+            WHERE txn.id = match.txn_id
+              AND txn.account_id IS DISTINCT FROM match.account_id
+        """)
+
+    def write(self, vals):
+        res = super().write(vals)
+        if self.env.context.get('skip_payment_account_sync'):
+            return res
+        if not any(key in vals for key in ('payment_method', 'account_id', 'branch_id')):
+            return res
+        for rec in self:
+            rec._sync_account_to_payment_method()
+        return res
+
+    def _sync_account_to_payment_method(self):
+        """Keep the posted account aligned with the payment method when that is unambiguous."""
+        self.ensure_one()
+        if self.payment_method not in ('cash', 'bank', 'upi'):
+            return
+        if self.account_id and self.account_id.account_type == self.payment_method:
+            return
+        if not self.branch_id:
+            return
+        accounts = self.env['institute.account'].search([
+            ('branch_id', '=', self.branch_id.id),
+            ('account_type', '=', self.payment_method),
+        ])
+        if len(accounts) == 1:
+            self.with_context(skip_payment_account_sync=True).write({'account_id': accounts.id})
         
     payment_status = fields.Selection([
         ('paid_by_branch', 'Paid by Branch'),
