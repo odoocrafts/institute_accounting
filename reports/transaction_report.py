@@ -28,7 +28,8 @@ class InstituteAccountingReport(models.Model):
         ('draft', 'Draft'),
         ('submitted', 'Submitted'),
         ('approved', 'Approved'),
-        ('paid', 'Paid')
+        ('paid', 'Paid'),
+        ('refunded', 'Refunded')
     ], string='Status', readonly=True)
 
     def _select(self):

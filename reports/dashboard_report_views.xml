@@ -83,13 +83,15 @@
                                 <td style="width: 50%; vertical-align: top;">
                                     <div style="border-top: 4px solid #3b82f6; padding: 12px; border-radius: 5px; border-left: 0.5px solid #e5e7eb; border-right: 0.5px solid #e5e7eb; border-bottom: 0.5px solid #e5e7eb;">
                                         <strong>CASH BALANCE</strong><br/>
-                                        <span style="font-size: 16px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('cash_balance', 0))"/></span>
+                                        <span style="font-size: 16px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('cash_balance', 0))"/></span><br/>
+                                        <span style="font-size: 11px; color: #6b7280;">Live balance of cash accounts</span>
                                     </div>
                                 </td>
                                 <td style="width: 50%; vertical-align: top;">
                                     <div style="border-top: 4px solid #06b6d4; padding: 12px; border-radius: 5px; border-left: 0.5px solid #e5e7eb; border-right: 0.5px solid #e5e7eb; border-bottom: 0.5px solid #e5e7eb;">
                                         <strong>BANK BALANCE</strong><br/>
-                                        <span style="font-size: 16px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('bank_balance', 0))"/></span>
+                                        <span style="font-size: 16px;"><t t-esc="data.get('currency_symbol')"/> <t t-esc="'{0:,.2f}'.format(data.get('bank_balance', 0))"/></span><br/>
+                                        <span style="font-size: 11px; color: #6b7280;">Live balance of bank and UPI accounts</span>
                                     </div>
                                 </td>
                             </tr>

@@ -190,6 +190,41 @@ class InstituteAccountingTransaction(models.Model):
                 }
             }
 
+    @api.model
+    def _unassigned_liquid_balances(self, branch_ids=None):
+        """Cash and bank impact of settled transactions that were never linked to an account.
+
+        ``branch_ids`` None means every visible branch. Returns
+        ``{branch_id: {'cash': float, 'bank': float}}``. Branch 0 collects
+        transactions that have no branch.
+        """
+        domain = [
+            ('account_id', '=', False),
+            ('state', 'in', ['paid', 'refunded']),
+        ]
+        if branch_ids is not None:
+            domain.append(('branch_id', 'in', list(branch_ids)))
+
+        rows = self._read_group(
+            domain,
+            groupby=['branch_id', 'payment_method', 'transaction_type', 'state'],
+            aggregates=['amount:sum'],
+        )
+        result = {}
+        for branch, method, transaction_type, state, amount in rows:
+            amount = amount or 0.0
+            if transaction_type in ('income', 'other_income') and state in ('paid', 'refunded'):
+                signed = amount
+            elif transaction_type == 'expense' and state == 'paid':
+                signed = -amount
+            else:
+                continue
+            bucket = 'cash' if (method or 'cash') == 'cash' else 'bank'
+            branch_id = branch.id if branch else 0
+            entry = result.setdefault(branch_id, {'cash': 0.0, 'bank': 0.0})
+            entry[bucket] += signed
+        return result
+
     def action_refund(self):
         for rec in self:
             if rec.transaction_type not in ('income', 'other_income') or rec.state != 'paid':

@@ -21,18 +21,33 @@ class InstituteAccount(models.Model):
 
     @api.depends('opening_balance')
     def _compute_current_balance(self):
+        """Live balance: opening + settled receipts (including other income) - paid expenses.
+
+        Refunded receipts stay in the inflow because the refund is posted as its own
+        paid expense. Every settled transaction on the account is included, with no
+        period cutoff, so dashboards and reports can reuse this figure.
+        """
+        totals = {rec.id: 0.0 for rec in self}
+        stored = self.filtered(lambda rec: isinstance(rec.id, int))
+        if stored:
+            rows = self.env['institute.accounting.transaction']._read_group(
+                [('account_id', 'in', stored.ids), ('state', 'in', ['paid', 'refunded'])],
+                groupby=['account_id', 'transaction_type', 'state'],
+                aggregates=['amount:sum'],
+            )
+            for account, transaction_type, state, amount in rows:
+                if not account:
+                    continue
+                amount = amount or 0.0
+                if transaction_type in ('income', 'other_income') and state in ('paid', 'refunded'):
+                    totals[account.id] += amount
+                elif transaction_type == 'expense' and state == 'paid':
+                    totals[account.id] -= amount
+
+        currency = self.env.company.currency_id
         for rec in self:
-            incomes = self.env['institute.accounting.transaction'].search([
-                ('account_id', '=', rec.id),
-                ('transaction_type', 'in', ['income', 'other_income']),
-                ('state', 'in', ['paid', 'refunded'])
-            ])
-            expenses = self.env['institute.accounting.transaction'].search([
-                ('account_id', '=', rec.id),
-                ('transaction_type', '=', 'expense'),
-                ('state', '=', 'paid')
-            ])
-            rec.current_balance = rec.opening_balance + sum(incomes.mapped('amount')) - sum(expenses.mapped('amount'))
+            balance = rec.opening_balance + totals.get(rec.id, 0.0)
+            rec.current_balance = currency.round(balance) if currency else balance
 
     @api.constrains('branch_id', 'name')
     def _check_unique_name_per_branch(self):

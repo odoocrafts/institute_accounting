@@ -10,19 +10,23 @@ class InstituteDashboard(models.AbstractModel):
         is_manager = self.env.user.has_group('institute_accounting.group_institute_accounting_manager')
         
         domain_branch = []
-        student_domain_branch = []
+        visible_branch_ids = None
         if not is_manager:
-            # Use sudo() to ensure no access error if branch accountant lacks direct read access to student.branch
-            branch = self.env['student.branch'].sudo().search([('accountant_id', '=', self.env.user.id)], limit=1)
-            if branch:
-                domain_branch = [('branch_id', '=', branch.id)]
-                student_domain_branch = [('branch', '=', branch.id)]
-            elif hasattr(self.env.user, 'branch_ids') and self.env.user.branch_ids:
-                domain_branch = [('branch_id', 'in', self.env.user.branch_ids.ids)]
-                student_domain_branch = [('branch', 'in', self.env.user.branch_ids.ids)]
+            # Include every branch this accountant owns, plus any extra branches
+            # granted on the user. A single limit=1 match used to drop the rest,
+            # so their cash never appeared on the dashboard.
+            branch_ids = set(self.env['student.branch'].sudo().search([
+                ('accountant_id', '=', self.env.user.id),
+            ]).ids)
+            allowed_branches = self.env.user.sudo().branch_ids
+            if allowed_branches:
+                branch_ids.update(allowed_branches.ids)
+            visible_branch_ids = list(branch_ids)
+            if visible_branch_ids:
+                domain_branch = [('branch_id', 'in', visible_branch_ids)]
             else:
                 domain_branch = [('id', '=', 0)]
-                student_domain_branch = [('id', '=', 0)]
+                visible_branch_ids = []
 
         today = date.today()
         
@@ -48,19 +52,27 @@ class InstituteDashboard(models.AbstractModel):
         # All paid/refunded transactions in domain_branch
         transactions = self.env['institute.accounting.transaction'].search([('state', 'in', ['paid', 'refunded'])] + domain_branch)
 
-        # 1. Balances up to end_date
+        # 1. Live cash / bank balances. These follow institute.account.current_balance
+        # (opening + every settled receipt and expense), not the selected period.
+        # The period filter only applies to income, expense, and profit below.
         accounts = self.env['institute.account'].search(domain_branch)
-        
-        def get_account_balance_as_of(acc_id, opening):
-            inc = sum(transactions.filtered(lambda t: t.account_id.id == acc_id and t.transaction_type in ('income', 'other_income') and t.date and t.date <= end_date).mapped('amount'))
-            exp = sum(transactions.filtered(lambda t: t.account_id.id == acc_id and t.transaction_type == 'expense' and t.date and t.date <= end_date).mapped('amount'))
-            return opening + inc - exp
+        accounts.mapped('current_balance')
+        currency = self.env.company.currency_id
 
-        cash_accounts = accounts.filtered(lambda a: a.account_type == 'cash')
-        bank_accounts = accounts.filtered(lambda a: a.account_type in ['bank', 'upi'])
-        
-        cash_balance = sum(get_account_balance_as_of(a.id, a.opening_balance) for a in cash_accounts)
-        bank_balance = sum(get_account_balance_as_of(a.id, a.opening_balance) for a in bank_accounts)
+        def _round(value):
+            return currency.round(value) if currency else value
+
+        def _split_balances(account_records):
+            cash = sum(account.current_balance for account in account_records if account.account_type == 'cash')
+            bank = sum(account.current_balance for account in account_records if account.account_type in ('bank', 'upi'))
+            return cash, bank
+
+        cash_balance, bank_balance = _split_balances(accounts)
+        unassigned = self.env['institute.accounting.transaction']._unassigned_liquid_balances(visible_branch_ids)
+        cash_balance += sum(amounts['cash'] for amounts in unassigned.values())
+        bank_balance += sum(amounts['bank'] for amounts in unassigned.values())
+        cash_balance = _round(cash_balance)
+        bank_balance = _round(bank_balance)
         
         # 2. Fee Due
         students = self.env['institute.accounting.student'].search(domain_branch)
@@ -104,9 +116,11 @@ class InstituteDashboard(models.AbstractModel):
                 b_students = self.env['institute.accounting.student'].search([('branch_id', '=', b.id)])
                 b_fee_due = sum(b_students.mapped('total_due'))
 
-                b_accounts = self.env['institute.account'].search([('branch_id', '=', b.id)])
-                b_cash = sum(get_account_balance_as_of(a.id, a.opening_balance) for a in b_accounts.filtered(lambda a: a.account_type == 'cash'))
-                b_bank = sum(get_account_balance_as_of(a.id, a.opening_balance) for a in b_accounts.filtered(lambda a: a.account_type in ['bank', 'upi']))
+                b_accounts = accounts.filtered(lambda account, branch_id=b.id: account.branch_id.id == branch_id)
+                b_cash, b_bank = _split_balances(b_accounts)
+                extra = unassigned.get(b.id, {})
+                b_cash = _round(b_cash + extra.get('cash', 0.0))
+                b_bank = _round(b_bank + extra.get('bank', 0.0))
 
                 branch_metrics.append({
                     'id': b.id,
@@ -121,14 +135,22 @@ class InstituteDashboard(models.AbstractModel):
                 })
 
             branch_totals = {
-                'cash_balance': sum(b['cash_balance'] for b in branch_metrics),
-                'bank_balance': sum(b['bank_balance'] for b in branch_metrics),
-                'total_balance': sum(b['total_balance'] for b in branch_metrics),
+                'cash_balance': _round(sum(b['cash_balance'] for b in branch_metrics)),
+                'bank_balance': _round(sum(b['bank_balance'] for b in branch_metrics)),
+                'total_balance': _round(sum(b['total_balance'] for b in branch_metrics)),
                 'fee_due': sum(b['fee_due'] for b in branch_metrics),
                 'income': sum(b['income'] for b in branch_metrics),
                 'expense': sum(b['expense'] for b in branch_metrics),
                 'profit': sum(b['profit'] for b in branch_metrics),
             }
+            covered_branch_ids = set(branches.ids)
+            loose_cash, loose_bank = _split_balances(accounts.filtered(
+                lambda account: account.branch_id.id not in covered_branch_ids
+            ))
+            extra_cash = sum(amounts['cash'] for branch_id, amounts in unassigned.items() if branch_id not in covered_branch_ids)
+            extra_bank = sum(amounts['bank'] for branch_id, amounts in unassigned.items() if branch_id not in covered_branch_ids)
+            cash_balance = _round(branch_totals['cash_balance'] + loose_cash + extra_cash)
+            bank_balance = _round(branch_totals['bank_balance'] + loose_bank + extra_bank)
 
         # 6. Course Metrics (Branch Accountant only)
         course_metrics = []
